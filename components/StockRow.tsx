@@ -1,25 +1,38 @@
-// components/StockRow.tsx
-interface StockRowProps {
+interface Props {
   symbol: string;
   price: string;
   change: string;
   volume: string;
 }
 
-export default function StockRow({ symbol, price, change, volume }: StockRowProps) {
+export default function StockRow({ symbol, price, change, volume }: Props) {
+  const changePositive = Number(change) > 0;
+
   return (
-    <div className="flex items-center justify-between p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors">
-      <div className="flex flex-col">
-        <span className="font-bold text-slate-800 text-lg">{symbol}</span>
-        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-          Vol: {Number(volume).toLocaleString()}
-        </span>
-      </div>
-      <div className="text-right">
-        <div className="text-md font-bold text-slate-900">MK {Number(price).toLocaleString()}</div>
-        <div className={`text-xs font-bold ${Number(change) >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-          {change === "0" ? "0.00%" : `${change}%`}
+    <div className="group relative bg-white/5 backdrop-blur-lg p-5 rounded-[24px] border border-white/20 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        {/* Ticker Initials */}
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center border border-white/20 font-bold text-white/70 group-hover:text-white ${
+          changePositive ? 'bg-emerald-600/20' : 'bg-red-500/20'
+        }`}>
+          {symbol.substring(0, 2)}
         </div>
+        <div>
+          <h3 className="text-lg font-bold text-white tracking-tight">{symbol}</h3>
+          <p className="text-[11px] text-white/50 font-medium uppercase tracking-widest">MSE • Malawi</p>
+        </div>
+      </div>
+
+      <div className="text-right flex flex-col items-end">
+        <p className="text-lg font-black text-white">
+          <span className="text-xs font-medium text-white/50 mr-1">MK</span>
+          {Number(price).toLocaleString()}
+        </p>
+        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+          changePositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+        }`}>
+          {change}%
+        </span>
       </div>
     </div>
   );
