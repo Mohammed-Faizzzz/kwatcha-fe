@@ -1,21 +1,29 @@
-import Link from 'next/link';
-import { Home, BarChart2, Info } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-black/50 backdrop-blur-lg border border-slate-700 shadow-xl rounded-full px-6 py-3">
-      <div className="flex justify-around items-center h-16 max-w-md mx-auto">
-        {[
-          { href: '/', icon: <Home size={24} />, label: 'Market' },
-          { href: '/insights', icon: <Info size={24} />, label: 'Insights' },
-          { href: '/portfolio', icon: <BarChart2 size={24} />, label: 'Portfolio' },
-        ].map(({ href, icon, label }) => (
-          <Link key={label} href={href} className="flex flex-col items-center text-white/70 hover:text-blue-400 transition-colors">
-            {icon}
-            <span className="text-[10px] mt-1 font-medium">{label}</span>
-          </Link>
+    <nav className="fixed top-0 left-0 w-full backdrop-blur-lg bg-black/50 border-b border-white/10 shadow-lg z-50 px-8 py-4 flex items-center justify-between">
+      {/* Logo */}
+      <div className="text-xl font-bold text-white">MSE Trade</div>
+
+      {/* Navigation Links */}
+      <div className="hidden md:flex gap-6 text-sm font-medium">
+        {["Market", "Companies", "Insights", "Portfolio"].map((section) => (
+          <a
+            key={section}
+            href={`#${section.toLowerCase()}`}
+            className="text-white/70 hover:text-blue-400 transition-colors"
+          >
+            {section}
+          </a>
         ))}
       </div>
+
+      {/* Button */}
+      <Button className="button-primary hidden md:inline-flex">Get Started</Button>
+
+      {/* Mobile menu placeholder */}
+      {/* You can add a hamburger menu here for smaller screens */}
     </nav>
   );
 }
