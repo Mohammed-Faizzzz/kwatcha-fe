@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
+
 
 export default function Navbar() {
+  const router = useRouter();
   return (
     <nav className="fixed top-0 left-0 w-full backdrop-blur-lg bg-black/50 border-b border-white/10 shadow-lg z-50 px-8 py-4 flex items-center justify-between">
       {/* Logo */}
@@ -20,7 +23,13 @@ export default function Navbar() {
       </div>
 
       {/* Button */}
-      <Button className="button-primary hidden md:inline-flex">Get Started</Button>
+      <Button
+        variant="link"
+        className="button-primary hidden md:inline-flex"
+        onClick={() => router.push(`/pages/AccountCreationPage`)}
+      >
+        Get Started
+      </Button>
 
       {/* Mobile menu placeholder */}
       {/* You can add a hamburger menu here for smaller screens */}
