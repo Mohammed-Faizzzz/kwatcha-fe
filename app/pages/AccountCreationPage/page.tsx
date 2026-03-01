@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 type ApplicantType = "individual" | "joint" | "company";
@@ -22,15 +23,17 @@ interface UploadedFile {
 }
 
 export default function AccountCreationPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [applicantType, setApplicantType] = useState<ApplicantType>("individual");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFile | null>>({
     certifiedId: null,
-    passportPhoto1: null,
-    passportPhoto2: null,
+    passportPhoto: null,
     proofOfAddress: null,
     companyDocs: null,
   });
@@ -109,24 +112,24 @@ export default function AccountCreationPage() {
       }
       if (!form.physicalAddress.trim()) newErrors.physicalAddress = "Physical address is required";
       if (!form.telephone.trim()) newErrors.telephone = "Telephone is required";
-      if (!form.cellphone.trim()) newErrors.cellphone = "Cellphone is required";
+      // if (!form.cellphone.trim()) newErrors.cellphone = "Cellphone is required";
       if (!form.email.trim()) newErrors.email = "Email address is required";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "Please enter a valid email";
     }
 
     if (step === 3) {
-      if (!form.bankName.trim()) newErrors.bankName = "Bank name is required";
-      if (!form.bankBranchCode.trim()) newErrors.bankBranchCode = "Branch code is required";
-      if (!form.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
-      if (!form.accountName.trim()) newErrors.accountName = "Account name is required";
+      // if (!form.bankName.trim()) newErrors.bankName = "Bank name is required";
+      // if (!form.bankBranchCode.trim()) newErrors.bankBranchCode = "Branch code is required";
+      // if (!form.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
+      // if (!form.accountName.trim()) newErrors.accountName = "Account name is required";
       if (!form.primarySignatureDate) newErrors.primarySignatureDate = "Please select a date";
       if (applicantType === "joint" && !form.jointSignatureDate) newErrors.jointSignatureDate = "Please select a date";
     }
 
     if (step === 4) {
       if (!uploadedFiles.certifiedId) newErrors.certifiedId = "Certified copy of ID is required";
-      if (!uploadedFiles.passportPhoto1) newErrors.passportPhoto1 = "First passport photo is required";
-      if (!uploadedFiles.passportPhoto2) newErrors.passportPhoto2 = "Second passport photo is required";
+      if (!uploadedFiles.passportPhoto) newErrors.passportPhoto = "Passport photo is required";
+      // if (!uploadedFiles.passportPhoto2) newErrors.passportPhoto2 = "Second passport photo is required";
     }
 
     if (step === 5) {
@@ -148,6 +151,80 @@ export default function AccountCreationPage() {
   const handleContinue = () => {
     if (validateStep(currentStep as Step)) {
       setCurrentStep((prev) => (Math.min(6, prev + 1)) as Step);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!agreed) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const formData = new FormData();
+      formData.append("account_type", applicantType);
+      formData.append("full_name", form.fullName);
+      formData.append("gender", form.gender);
+      formData.append("id_type", form.idType);
+      formData.append("id_number", form.idNumber);
+      formData.append("date_of_birth", form.dob);
+      formData.append("investor_type", form.investorType);
+      if (applicantType === "joint") {
+        formData.append("joint_full_name", form.jointFullName);
+        formData.append("joint_gender", form.jointGender);
+        formData.append("joint_id_type", form.jointIdType);
+        formData.append("joint_id_number", form.jointIdNumber);
+        formData.append("joint_date_of_birth", form.jointDob);
+        formData.append("joint_investor_type", form.jointInvestorType);
+      }
+      if (applicantType === "company") {
+        formData.append("company_name", form.companyName);
+        formData.append("registration_number", form.regNumber);
+        formData.append("date_of_registration", form.regDate);
+        formData.append("authorised_signatory_1", form.authorisedSignatory1);
+        formData.append("authorised_signatory_2", form.authorisedSignatory2);
+      }
+      formData.append("physical_address", form.physicalAddress);
+      formData.append("postal_address", form.postalAddress);
+      formData.append("telephone", form.telephone);
+      formData.append("cellphone", form.cellphone);
+      formData.append("fax", form.fax);
+      formData.append("email", form.email);
+      formData.append("bank_name", form.bankName);
+      formData.append("bank_branch_code", form.bankBranchCode);
+      formData.append("account_number", form.accountNumber);
+      formData.append("account_name", form.accountName);
+      formData.append("primary_signature_date", form.primarySignatureDate);
+      if (applicantType === "joint") {
+        formData.append("joint_signature_date", form.jointSignatureDate);
+      }
+      formData.append("username", form.username);
+      formData.append("password", form.password);
+      const fileKeys: Record<string, string> = {
+        certifiedId: "certified_id",
+        passportPhoto1: "passport_photo_1",
+        passportPhoto2: "passport_photo_2",
+        proofOfAddress: "proof_of_address",
+        companyDocs: "company_docs",
+      };
+      for (const [stateKey, fieldName] of Object.entries(fileKeys)) {
+        const inputEl = fileInputRefs.current[stateKey];
+        if (inputEl?.files?.[0]) {
+          formData.append(fieldName, inputEl.files[0]);
+        }
+      }
+      const res = await fetch("https://kwatcha-api.onrender.com/create_account", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.message || errData?.error || `Server error (${res.status})`);
+      }
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -349,10 +426,11 @@ export default function AccountCreationPage() {
             Your trading account username is <span className="text-blue-300 font-semibold">{form.username}</span>. You will be notified via <span className="text-blue-300">{form.email}</span> once your account is approved.
           </p>
           <Button
-            onClick={() => { setSubmitted(false); setCurrentStep(1); setAgreed(false); setErrors({}); }}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all"
+            onClick={() => router.push("/")} 
+            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2"
           >
-            Submit Another Application
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Back to Menu
           </Button>
         </div>
       </div>
@@ -704,6 +782,19 @@ export default function AccountCreationPage() {
           )}
         </div>
 
+        {/* Submit error */}
+        {submitError && (
+          <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+            <svg className="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <p className="text-red-400 text-sm font-semibold">Submission failed</p>
+              <p className="text-red-400/70 text-xs mt-0.5">{submitError}</p>
+            </div>
+          </div>
+        )}
+
         {/* Navigation */}
         <div className="flex justify-between mt-6">
           <Button
@@ -720,9 +811,17 @@ export default function AccountCreationPage() {
               Continue →
             </Button>
           ) : (
-            <Button type="button" onClick={() => agreed && setSubmitted(true)} disabled={!agreed}
-              className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-8 py-2 rounded-lg font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-              Submit Application
+            <Button type="button" onClick={handleSubmit} disabled={!agreed || submitting}
+              className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-8 py-2 rounded-lg font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2">
+              {submitting ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Submitting...
+                </>
+              ) : "Submit Application"}
             </Button>
           )}
         </div>
