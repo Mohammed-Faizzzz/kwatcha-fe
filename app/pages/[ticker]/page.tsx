@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { companyData } from "@/lib/companyData";
 
 interface StockData {
   ticker: string;
@@ -18,22 +18,18 @@ interface StockData {
   liquidity?: string | number;
   marketCap?: string | number;
   history?: { date: string; close: number }[];
-  companyInfo?: {
-    background?: string;
-    leadership?: string[];
-    financials?: string;
-    news?: string[];
-    insights?: string;
-  };
 }
 
 export default function CompanyPage() {
   const params = useParams();
-  const ticker = params?.ticker as string;
+  const ticker = (params?.ticker as string)?.toUpperCase();
 
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("background");
+
+  // Pull static company info from our local data file
+  const info = companyData[ticker];
 
   useEffect(() => {
     const fetchStock = async () => {
@@ -51,10 +47,24 @@ export default function CompanyPage() {
     fetchStock();
   }, [ticker]);
 
-  if (loading) return <p className="text-white text-center py-10">Loading...</p>;
-  if (!stock) return <p className="text-white text-center py-10">Stock not found</p>;
+  if (loading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="flex items-center gap-3 text-white/40">
+        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        Loading...
+      </div>
+    </div>
+  );
 
-  // Defensive parsing
+  if (!stock) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <p className="text-white/40">Stock not found</p>
+    </div>
+  );
+
   const open = Number(stock.open ?? 0);
   const close = Number(stock.close ?? 0);
   const change = Number(stock.change ?? 0);
@@ -66,79 +76,131 @@ export default function CompanyPage() {
   ];
   const liquidity = Number(stock.liquidity ?? 0);
   const marketCap = Number(stock.marketCap ?? 0);
+  const isPositive = change >= 0;
+
+  const tabs = ["background", "financials", "leadership", "news", "sustainability"];
 
   return (
-    <div className="min-h-screen bg-black/90 text-white pb-24">
+    <div
+      className="min-h-screen bg-black text-white pb-24"
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.07) 0%, transparent 60%)",
+      }}
+    >
       <Navbar />
-  <section className="px-8 pt-24 pb-12 max-w-5xl mx-auto space-y-8">
+
+      <section className="px-6 md:px-12 pt-28 pb-12 max-w-5xl mx-auto space-y-8">
+
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <Button variant="link" onClick={() => window.history.back()}>&larr; Back</Button>
-          <h1 className="text-4xl font-bold">{ticker}</h1>
+        <div>
+          <button
+            onClick={() => window.history.back()}
+            className="flex items-center gap-1 text-white/30 hover:text-white/60 text-sm transition-colors mb-6"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </button>
+
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              {info?.sector && (
+                <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
+                  {info.sector}
+                </p>
+              )}
+              <h1 className="text-4xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+                {info?.fullName ?? ticker}
+              </h1>
+              <p className="text-white/30 text-sm mt-1">{ticker} · MSE</p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-3xl font-bold text-white">
+                MK {close.toLocaleString()}
+              </p>
+              <p className={`text-sm font-semibold mt-1 ${isPositive ? "text-green-400" : "text-red-400"}`}>
+                {isPositive ? "+" : ""}{change.toFixed(2)}% today
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Today & 1 Year Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card><CardContent>
-            <p className="text-sm text-white/50">Today's Change</p>
-            <p className="text-lg font-bold">{change >= 0 ? "+" : ""}{change.toFixed(2)} / {(close - open).toFixed(2)}</p>
-          </CardContent></Card>
-
-          <Card><CardContent>
-            <p className="text-sm text-white/50">Today's Volume</p>
-            <p className="text-lg font-bold">{(volume / 1000).toFixed(1)}K</p>
-          </CardContent></Card>
-
-          <Card><CardContent>
-            <p className="text-sm text-white/50">1 Year Change</p>
-            <p className="text-lg font-bold">{yearChange.toFixed(2)}%</p>
-          </CardContent></Card>
-
-          <Card><CardContent>
-            <p className="text-sm text-white/50">52 Week Range</p>
-            <p className="text-lg font-bold">{week52Range[0].toLocaleString()} - {week52Range[1].toLocaleString()}</p>
-          </CardContent></Card>
-
-          <Card><CardContent>
-            <p className="text-sm text-white/50">1 Year Liquidity</p>
-            <p className="text-lg font-bold">MWK{(liquidity/1e6).toFixed(1)}M</p>
-          </CardContent></Card>
-
-          <Card><CardContent>
-            <p className="text-sm text-white/50">Market Cap</p>
-            <p className="text-lg font-bold">MWK{(marketCap/1e12).toFixed(1)}T</p>
-          </CardContent></Card>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {[
+            { label: "Open", value: `MK ${open.toLocaleString()}` },
+            { label: "Close", value: `MK ${close.toLocaleString()}` },
+            { label: "Today's Change", value: `${isPositive ? "+" : ""}${change.toFixed(2)}%` },
+            { label: "Volume", value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : volume.toString() },
+            { label: "1 Year Change", value: `${yearChange >= 0 ? "+" : ""}${yearChange.toFixed(2)}%` },
+            { label: "52 Week Range", value: `${week52Range[0].toLocaleString()} – ${week52Range[1].toLocaleString()}` },
+            { label: "1Y Liquidity", value: `MK ${(liquidity / 1e6).toFixed(1)}M` },
+            { label: "Market Cap", value: marketCap >= 1e12 ? `MK ${(marketCap / 1e12).toFixed(2)}T` : `MK ${(marketCap / 1e9).toFixed(1)}B` },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+              <p className="text-white/30 text-xs uppercase tracking-widest mb-1">{label}</p>
+              <p className="text-white font-semibold text-sm">{value}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Historic Graph */}
-        <div className="bg-white/5 backdrop-blur-lg p-4 rounded-xl">
+        {/* Company quick facts from companyData */}
+        {info && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Founded", value: info.founded },
+              { label: "Listed", value: info.listed },
+              { label: "Year End", value: info.yearEnd },
+              { label: "Employees", value: info.employees?.split(" ").slice(0, 3).join(" ") },
+            ].filter(f => f.value).map(({ label, value }) => (
+              <div key={label} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <p className="text-white/25 text-xs uppercase tracking-widest mb-1">{label}</p>
+                <p className="text-white/70 text-sm font-medium">{value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Chart */}
+        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
+          <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-4">Price History</p>
           {stock.history && stock.history.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={220}>
               <LineChart data={stock.history}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
+                <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} width={60} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#111", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
+                  labelStyle={{ color: "rgba(255,255,255,0.5)" }}
+                />
                 <Line
                   type="monotone"
                   dataKey="close"
-                  stroke={change >= 0 ? "#00FFA3" : "#FF4C4C"}
+                  stroke={isPositive ? "#4ade80" : "#f87171"}
                   strokeWidth={2}
                   dot={false}
                 />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-white/50 text-center py-20">Historical data not available</p>
+            <p className="text-white/25 text-center py-16 text-sm">Historical data not available</p>
           )}
         </div>
 
-        {/* Sub-navigation Tabs */}
-        <div className="flex gap-4 border-b border-white/20">
-          {["background","leadership","financials","news","insights"].map(tab => (
+        {/* Tabs */}
+        <div className="flex gap-1 bg-white/[0.03] border border-white/8 rounded-xl p-1 overflow-x-auto">
+          {tabs.map(tab => (
             <button
               key={tab}
-              className={`pb-2 font-medium ${activeTab === tab ? "border-b-2 border-blue-500 text-white" : "text-white/60"}`}
               onClick={() => setActiveTab(tab)}
+              className={`flex-1 min-w-max px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === tab
+                  ? "bg-blue-600 text-white"
+                  : "text-white/40 hover:text-white/70"
+              }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -146,21 +208,197 @@ export default function CompanyPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="mt-4">
-          {activeTab === "background" && <p>{stock.companyInfo?.background ?? "No background info available"}</p>}
+        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 min-h-48">
+
+          {/* Background */}
+          {activeTab === "background" && (
+            <div className="space-y-4">
+              <p className="text-white/70 leading-relaxed">
+                {info?.description ?? "No company background available."}
+              </p>
+              {info?.mission && (
+                <div className="mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/15">
+                  <p className="text-xs font-bold tracking-widest uppercase text-blue-400/60 mb-2">Mission</p>
+                  <p className="text-white/60 text-sm italic">"{info.mission}"</p>
+                </div>
+              )}
+              {info?.vision && (
+                <div className="mt-2 p-4 rounded-xl bg-white/[0.02] border border-white/8">
+                  <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-2">Vision</p>
+                  <p className="text-white/60 text-sm italic">"{info.vision}"</p>
+                </div>
+              )}
+              {info && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  {info.headquarters && (
+                    <div className="flex gap-2 text-white/40">
+                      <span className="shrink-0">📍</span>
+                      <span>{info.headquarters}</span>
+                    </div>
+                  )}
+                  {info.phone && (
+                    <div className="flex gap-2 text-white/40">
+                      <span className="shrink-0">📞</span>
+                      <span>{info.phone}</span>
+                    </div>
+                  )}
+                  {info.website && (
+                    <div className="flex gap-2 text-white/40">
+                      <span className="shrink-0">🌐</span>
+                      <a href={info.website} target="_blank" rel="noopener noreferrer" className="text-blue-400/70 hover:text-blue-400 transition-colors">{info.website}</a>
+                    </div>
+                  )}
+                  {info.indices && (
+                    <div className="flex gap-2 text-white/40">
+                      <span className="shrink-0">📊</span>
+                      <span>{info.indices.join(", ")}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Financials */}
+          {activeTab === "financials" && (
+            <div className="space-y-4">
+              {info?.financials?.keyFigures && info.financials.keyFigures.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {info.financials.keyFigures.map(({ label, value }) => (
+                    <div key={label} className="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+                      <p className="text-white/30 text-xs uppercase tracking-widest mb-1">{label}</p>
+                      <p className="text-white font-semibold text-sm">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-white/40 text-sm">No financial data available.</p>
+              )}
+              {info?.financials?.notes && (
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/8">
+                  <p className="text-white/50 text-sm leading-relaxed">{info.financials.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Leadership */}
           {activeTab === "leadership" && (
-            <ul className="list-disc list-inside space-y-1">
-              {(stock.companyInfo?.leadership ?? ["No leadership info available"]).map((person, i) => <li key={i}>{person}</li>)}
-            </ul>
+            <div className="space-y-3">
+              {info?.leadership && info.leadership.length > 0 ? (
+                info.leadership.map((person, i) => (
+                  <div key={i} className="flex items-start gap-4 p-4 bg-white/[0.03] border border-white/8 rounded-xl">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-300 font-bold text-sm shrink-0">
+                      {person.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">{person.name}</p>
+                      <p className="text-blue-400/70 text-xs font-medium mt-0.5">{person.role}</p>
+                      {person.bio && <p className="text-white/40 text-sm mt-2 leading-relaxed">{person.bio}</p>}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-white/40 text-sm">No leadership information available.</p>
+              )}
+            </div>
           )}
-          {activeTab === "financials" && <p>{stock.companyInfo?.financials ?? "No financials available"}</p>}
+
+          {/* News */}
           {activeTab === "news" && (
-            <ul className="list-disc list-inside space-y-1">
-              {(stock.companyInfo?.news ?? ["No news available"]).map((item, i) => <li key={i}>{item}</li>)}
-            </ul>
+            <div className="space-y-6">
+              {/* Articles */}
+              {info?.articles && info.articles.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-3">Articles</p>
+                  <div className="space-y-2">
+                    {info.articles.map((article, i) => (
+                      <a
+                        key={i}
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/8 hover:border-blue-500/30 hover:bg-white/[0.05] rounded-xl transition-all group"
+                      >
+                        <div>
+                          <p className="text-white text-sm font-medium group-hover:text-blue-200 transition-colors">{article.title}</p>
+                          <p className="text-white/25 text-xs mt-1">{article.date}</p>
+                        </div>
+                        <svg className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trading Updates */}
+              {info?.tradingUpdates && info.tradingUpdates.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-3">Trading Updates</p>
+                  <div className="space-y-2">
+                    {info.tradingUpdates.map((update, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/8 rounded-xl">
+                        <div>
+                          <p className="text-white text-sm font-medium">{update.title}</p>
+                          <p className="text-white/25 text-xs mt-1">{update.date}</p>
+                        </div>
+                        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-500/10 text-blue-400/80 border border-blue-500/15 shrink-0 ml-4">
+                          {update.type}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Podcasts */}
+              {info?.podcasts && info.podcasts.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-3">Podcasts & Media</p>
+                  <div className="space-y-2">
+                    {info.podcasts.map((pod, i) => (
+                      <a
+                        key={i}
+                        href={pod.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-white/[0.03] border border-white/8 hover:border-blue-500/30 rounded-xl transition-all group"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/20 flex items-center justify-center shrink-0">
+                          <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19.59 12.87l-10-6A1 1 0 008 7.87v12a1 1 0 001.59.8l10-6a1 1 0 000-1.8z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-white text-sm font-medium group-hover:text-blue-200 transition-colors">{pod.title}</p>
+                          <p className="text-white/25 text-xs mt-0.5">{pod.date}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(!info?.articles?.length && !info?.tradingUpdates?.length && !info?.podcasts?.length) && (
+                <p className="text-white/40 text-sm">No news available.</p>
+              )}
+            </div>
           )}
-          {activeTab === "insights" && <p>{stock.companyInfo?.insights ?? "No insights available"}</p>}
+
+          {/* Sustainability */}
+          {activeTab === "sustainability" && (
+            <div>
+              {info?.sustainability ? (
+                <p className="text-white/70 leading-relaxed">{info.sustainability}</p>
+              ) : (
+                <p className="text-white/40 text-sm">No sustainability information available.</p>
+              )}
+            </div>
+          )}
         </div>
+
       </section>
       <Footer />
     </div>
