@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -29,6 +30,16 @@ export default function DashboardPage() {
       }
     };
     fetchStocks();
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("mse_user");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.loggedIn) setLoggedInUser(parsed.username);
+      } catch {}
+    }
   }, []);
 
   const calcMarketStatus = () => {
@@ -71,12 +82,26 @@ export default function DashboardPage() {
             <div className={`w-2 h-2 rounded-full ${marketStatus === "Open" ? "bg-green-400" : "bg-red-400"}`} />
             <span className="text-white/40 text-xs">Market {marketStatus}</span>
           </div>
-          <Button
-            onClick={() => router.push("/")}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
-          >
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-3">
+            {loggedInUser && (
+              <span className="text-white/30 text-xs hidden md:block">@{loggedInUser}</span>
+            )}
+            <Button
+              onClick={() => router.push("/pages/Portfolio")}
+              className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
+            >
+              Portfolio
+            </Button>
+            <Button
+              onClick={() => {
+                localStorage.removeItem("mse_user");
+                router.push("/");
+              }}
+              className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
 
