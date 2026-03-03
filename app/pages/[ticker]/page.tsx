@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -22,13 +23,19 @@ interface StockData {
 
 export default function CompanyPage() {
   const params = useParams();
+  const router = useRouter();
   const ticker = (params?.ticker as string)?.toUpperCase();
 
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("background");
+  const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
+  const [shares, setShares] = useState<string>("");
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
 
-  // Pull static company info from our local data file
   const info = companyData[ticker];
 
   useEffect(() => {
@@ -46,6 +53,16 @@ export default function CompanyPage() {
     };
     fetchStock();
   }, [ticker]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("mse_user");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.loggedIn) setLoggedInUser(parsed.username);
+      } catch {}
+    }
+  }, []);
 
   if (loading) return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -79,6 +96,42 @@ export default function CompanyPage() {
   const isPositive = change >= 0;
 
   const tabs = ["background", "financials", "leadership", "news", "sustainability"];
+
+  const handleOrder = async () => {
+    if (!shares || isNaN(Number(shares)) || Number(shares) <= 0) {
+      setOrderError("Please enter a valid number of shares.");
+      return;
+    }
+    setOrderLoading(true);
+    setOrderError(null);
+    setOrderSuccess(null);
+    try {
+      const res = await fetch("https://kwatcha-api.onrender.com/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: loggedInUser,
+          ticker,
+          type: orderType,
+          shares: Number(shares),
+          price: close,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => null);
+        throw new Error(d?.message || `Error ${res.status}`);
+      }
+      setOrderSuccess(`${orderType === "buy" ? "Buy" : "Sell"} order placed for ${shares} shares of ${ticker}.`);
+      setShares("");
+    } catch (err: unknown) {
+      setOrderError(err instanceof Error ? err.message : "Order failed.");
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  const estimatedTotal = shares && !isNaN(Number(shares)) ? (Number(shares) * close).toLocaleString() : "—";
+
 
   return (
     <div
@@ -187,6 +240,103 @@ export default function CompanyPage() {
             </ResponsiveContainer>
           ) : (
             <p className="text-white/25 text-center py-16 text-sm">Historical data not available</p>
+          )}
+        </div>
+
+        {/* Order Panel */}
+        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+          <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-5">Place Order</p>
+
+          {!loggedInUser ? (
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/8">
+              <p className="text-white/40 text-sm">You must be logged in to place orders.</p>
+              <button
+                onClick={() => router.push("/")}
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                Log In →
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Buy / Sell toggle */}
+              <div className="flex gap-1 bg-white/[0.03] border border-white/8 rounded-xl p-1 w-fit">
+                {(["buy", "sell"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setOrderType(t); setOrderSuccess(null); setOrderError(null); }}
+                    className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+                      orderType === t
+                        ? t === "buy" ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                        : "text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    {t === "buy" ? "Buy" : "Sell"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Inputs row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold tracking-widest text-white/30 uppercase">Shares</label>
+                  <input
+                    type="number" min="1" value={shares}
+                    onChange={(e) => { setShares(e.target.value); setOrderError(null); setOrderSuccess(null); }}
+                    placeholder="e.g. 100"
+                    className="w-full bg-white/5 border border-white/10 focus:border-blue-500/60 rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold tracking-widest text-white/30 uppercase">Price per Share</label>
+                  <div className="bg-white/[0.02] border border-white/8 rounded-lg px-4 py-2.5 text-white/50 text-sm">
+                    MK {close.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold tracking-widest text-white/30 uppercase">Estimated Total</label>
+                  <div className="bg-white/[0.02] border border-white/8 rounded-lg px-4 py-2.5 text-white/70 text-sm font-semibold">
+                    MK {estimatedTotal}
+                  </div>
+                </div>
+              </div>
+
+              {/* Feedback */}
+              {orderError && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <svg className="w-4 h-4 text-red-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                  <p className="text-red-400 text-xs">{orderError}</p>
+                </div>
+              )}
+              {orderSuccess && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <svg className="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  <p className="text-green-400 text-xs">{orderSuccess}</p>
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                onClick={handleOrder}
+                disabled={orderLoading || !shares}
+                className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 ${
+                  orderType === "buy"
+                    ? "bg-green-600 hover:bg-green-500 text-white"
+                    : "bg-red-600 hover:bg-red-500 text-white"
+                }`}
+              >
+                {orderLoading
+                  ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Placing order...</>
+                  : `Place ${orderType === "buy" ? "Buy" : "Sell"} Order`
+                }
+              </button>
+
+              <p className="text-white/20 text-xs">
+                Logged in as @{loggedInUser} · Orders are subject to market availability and broker confirmation.
+              </p>
+            </div>
           )}
         </div>
 

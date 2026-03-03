@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +12,23 @@ export default function Navbar() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("mse_user");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.loggedIn) setLoggedInUser(parsed.username);
+      } catch {}
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("mse_user");
+    setLoggedInUser(null);
+    router.push("/");
+  };
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
@@ -36,6 +53,8 @@ export default function Navbar() {
       setUsername("");
       setPassword("");
       router.push("/pages/DashboardPage");
+      localStorage.setItem("mse_user", JSON.stringify({ username, loggedIn: true }));
+      setLoggedInUser(username);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -69,18 +88,38 @@ export default function Navbar() {
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button
-            onClick={() => { setShowLogin(true); setError(null); }}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 text-sm px-5 rounded-lg transition-all"
-          >
-            Log In
-          </Button>
-          <Button
-            onClick={() => router.push("/pages/AccountCreationPage")}
-            className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-5 rounded-lg font-semibold transition-all"
-          >
-            Get Started
-          </Button>
+          {loggedInUser ? (
+            <>
+              <span className="text-white/40 text-sm">@{loggedInUser}</span>
+              <Button
+                onClick={() => router.push("/dashboard")}
+                className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 text-sm px-5 rounded-lg transition-all"
+              >
+                Dashboard
+              </Button>
+              <Button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-500 text-white text-sm px-5 rounded-lg font-semibold transition-all"
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => { setShowLogin(true); setError(null); }}
+                className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 text-sm px-5 rounded-lg transition-all"
+              >
+                Log In
+              </Button>
+              <Button
+                onClick={() => router.push("/pages/AccountCreationPage")}
+                className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-5 rounded-lg font-semibold transition-all"
+              >
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
       </nav>
 
