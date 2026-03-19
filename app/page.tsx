@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { ArrowRight, TrendingUp, BarChart3, Building2 } from "lucide-react";
+import { ArrowRight, TrendingUp, BarChart3, TrendingDown, Activity, ChevronsLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,26 +23,57 @@ interface MarketResponse {
   stocks: Record<string, StockData>;
 }
 
+interface MoverEntry {
+  ticker: string;
+  change: number;
+  volume: number;
+  turnover: number;
+  close?: number;
+}
+
+interface MoversResponse {
+  status: string;
+  market: string;
+  summary: {
+    total_stocks: number;
+    gainers: number;
+    losers: number;
+    unchanged: number;
+    total_volume: number;
+    total_turnover: number;
+  };
+  top_gainers: MoverEntry[];
+  top_losers: MoverEntry[];
+  highest_volume: MoverEntry[];
+  highest_turnover: MoverEntry[];
+}
+
 export default function LandingPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
+  const [movers, setMovers] = useState<MoversResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStocks = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("https://kwatcha-api.onrender.com/stocks");
-        const data: MarketResponse = await res.json();
-        setStocks(data.stocks);
+        const [stocksRes, moversRes] = await Promise.all([
+          fetch("https://kwatcha-api.onrender.com/stocks"),
+          fetch("https://kwatcha-api.onrender.com/stocks/movers"),
+        ]);
+        const stocksData: MarketResponse = await stocksRes.json();
+        const moversData: MoversResponse = await moversRes.json();
+        setStocks(stocksData.stocks);
+        setMovers(moversData);
       } catch (err) {
-        console.error("Failed to fetch stocks:", err);
+        console.error("Failed to fetch data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStocks();
-    const interval = setInterval(fetchStocks, 30 * 60 * 1000);
+    fetchData();
+    const interval = setInterval(fetchData, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -73,9 +104,7 @@ export default function LandingPage() {
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-4">
             Malawi Stock Exchange
           </p>
-          <h1
-            className="text-5xl md:text-6xl font-bold text-white leading-[1.1] mb-6 font-playfair"
-          >
+          <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.1] mb-6">
             Invest in Malawi's
             <br />
             <span className="text-white/40">Stock Market</span>
@@ -130,7 +159,7 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Market Status */}
+          {/* Market Status + Breadth */}
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
             <div className="flex items-start justify-between mb-4">
               <TrendingUp className="text-blue-400/60" size={20} />
@@ -144,9 +173,16 @@ export default function LandingPage() {
                 {marketStatus}
               </span>
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Market Status</p>
-            <p className="text-2xl font-bold text-white">{marketStatus}</p>
-            <p className="text-white/25 text-xs mt-1">Mon–Fri · 09:00–17:00 CAT</p>
+            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Market Breadth</p>
+            <div className="flex items-end gap-3 mb-3">
+              <p className="text-2xl font-bold text-white">{movers?.summary.total_stocks ?? "—"}</p>
+              <p className="text-white/30 text-xs mb-1">stocks</p>
+            </div>
+            <div className="flex gap-3 text-xs">
+              <span className="text-green-400/80">▲ {movers?.summary.gainers ?? "—"} up</span>
+              <span className="text-red-400/70">▼ {movers?.summary.losers ?? "—"} down</span>
+              <span className="text-white/25">— {movers?.summary.unchanged ?? "—"} flat</span>
+            </div>
           </div>
 
           {/* Total Turnover */}
@@ -155,20 +191,47 @@ export default function LandingPage() {
               <BarChart3 className="text-blue-400/60" size={20} />
             </div>
             <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Total Turnover</p>
-            <p className="text-2xl font-bold text-white">MK 1.2B</p>
-            <p className="text-white/25 text-xs mt-1">Latest session</p>
+            <p className="text-2xl font-bold text-white">
+              {movers
+                ? `MK ${Number(movers.summary.total_turnover).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                : "—"}
+            </p>
+            <p className="text-white/25 text-xs mt-1">
+              Vol: {movers ? Number(movers.summary.total_volume).toLocaleString() : "—"} shares
+            </p>
           </div>
 
-          {/* Listed Companies */}
+          {/* Top Movers */}
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
             <div className="mb-4">
-              <Building2 className="text-blue-400/60" size={20} />
+              <Activity className="text-blue-400/60" size={20} />
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Listed Companies</p>
-            <p className="text-2xl font-bold text-white">
-              {stocks ? Object.keys(stocks).length : "—"}
-            </p>
-            <p className="text-white/25 text-xs mt-1">Active on MSE</p>
+            <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Top Movers</p>
+            <div className="space-y-2">
+              {movers?.top_gainers[0] && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={12} className="text-green-400/70" />
+                    <span className="text-white/70 text-sm font-semibold">{movers.top_gainers[0].ticker}</span>
+                  </div>
+                  <span className="text-green-400 text-xs font-bold">
+                    +{movers.top_gainers[0].change.toFixed(2)}%
+                  </span>
+                </div>
+              )}
+              {movers?.top_losers[0] && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingDown size={12} className="text-red-400/70" />
+                    <span className="text-white/70 text-sm font-semibold">{movers.top_losers[0].ticker}</span>
+                  </div>
+                  <span className="text-red-400 text-xs font-bold">
+                    {movers.top_losers[0].change.toFixed(2)}%
+                  </span>
+                </div>
+              )}
+              {!movers && <p className="text-white/20 text-xs">Loading...</p>}
+            </div>
           </div>
         </div>
       </section>
@@ -180,9 +243,7 @@ export default function LandingPage() {
             <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
               Listed Companies
             </p>
-            <h2
-              className="text-2xl font-bold text-white font-playfair"
-            >
+            <h2 className="text-2xl font-bold text-white">
               Browse the Market
             </h2>
           </div>
@@ -213,7 +274,8 @@ export default function LandingPage() {
             {stocks &&
               Object.entries(stocks).map(([name, details]) => {
                 const change = parseFloat(details.change) || 0;
-                const isPositive = change >= 0;
+                const isPositive = change > 0;
+                const isNegative = change < 0;
                 return (
                   <div
                     key={name}
@@ -223,14 +285,18 @@ export default function LandingPage() {
                     <div className="flex items-start justify-between mb-3">
                       <span className="text-xs text-white/25 font-semibold tracking-widest uppercase">MSE</span>
                       <span
-                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        className={`text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
                           isPositive
                             ? "bg-green-500/10 text-green-400/80 border border-green-500/15"
-                            : "bg-red-500/10 text-red-400/80 border border-red-500/15"
+                            : isNegative
+                            ? "bg-red-500/10 text-red-400/80 border border-red-500/15"
+                            : "bg-yellow-500/10 text-yellow-400/80 border border-yellow-500/15"
                         }`}
                       >
-                        {isPositive ? "+" : ""}
-                        {change.toFixed(2)}%
+                        {!isPositive && !isNegative
+                          ? <><ChevronsLeftRight size={10} /> 0.00%</>
+                          : <>{isPositive ? "+" : ""}{change.toFixed(2)}%</>
+                        }
                       </span>
                     </div>
 

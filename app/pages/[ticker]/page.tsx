@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { ChevronsLeftRight } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { companyData } from "@/lib/companyData";
 
@@ -93,7 +94,9 @@ export default function CompanyPage() {
   ];
   const liquidity = Number(stock.liquidity ?? 0);
   const marketCap = Number(stock.marketCap ?? 0);
-  const isPositive = change >= 0;
+  const isPositive = change > 0;
+  const isNegative = change < 0;
+  const isUnchanged = change === 0;
 
   const tabs = ["background", "financials", "leadership", "news", "sustainability"];
 
@@ -164,7 +167,7 @@ export default function CompanyPage() {
                   {info.sector}
                 </p>
               )}
-              <h1 className="text-4xl font-bold text-white font-playfair">
+              <h1 className="text-4xl font-bold text-white">
                 {info?.fullName ?? ticker}
               </h1>
               <p className="text-white/30 text-sm mt-1">{ticker} · MSE</p>
@@ -174,8 +177,9 @@ export default function CompanyPage() {
               <p className="text-3xl font-bold text-white">
                 MK {close.toLocaleString()}
               </p>
-              <p className={`text-sm font-semibold mt-1 ${isPositive ? "text-green-400" : "text-red-400"}`}>
-                {isPositive ? "+" : ""}{change.toFixed(2)}% today
+              <p className={`text-sm font-semibold mt-1 flex items-center justify-end gap-1 ${isUnchanged ? "text-yellow-400" : isPositive ? "text-green-400" : "text-red-400"}`}>
+                {isUnchanged ? <ChevronsLeftRight size={14} /> : null}
+                {isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${change.toFixed(2)}%`} today
               </p>
             </div>
           </div>
@@ -186,7 +190,7 @@ export default function CompanyPage() {
           {[
             { label: "Open", value: `MK ${open.toLocaleString()}` },
             { label: "Close", value: `MK ${close.toLocaleString()}` },
-            { label: "Today's Change", value: `${isPositive ? "+" : ""}${change.toFixed(2)}%` },
+            { label: "Today's Change", value: isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${change.toFixed(2)}%` },
             { label: "Volume", value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : volume.toString() },
             { label: "1 Year Change", value: `${yearChange >= 0 ? "+" : ""}${yearChange.toFixed(2)}%` },
             { label: "52 Week Range", value: `${week52Range[0].toLocaleString()} – ${week52Range[1].toLocaleString()}` },
