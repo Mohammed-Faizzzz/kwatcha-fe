@@ -96,7 +96,7 @@ export default function LandingPage() {
               onClick={() => router.push("/pages/AccountCreationPage")}
               className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 font-medium px-7 rounded-xl transition-all"
             >
-              Open Account
+              Invest Now
             </Button>
           </div>
         </div>
