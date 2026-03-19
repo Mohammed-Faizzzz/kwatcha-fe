@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
@@ -71,7 +72,10 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 w-full backdrop-blur-lg bg-black/50 border-b border-white/10 shadow-lg z-50 px-8 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="text-xl font-bold text-white">MSE Trade</div>
+        <div className="flex items-center gap-2">
+          <Image src="/MWK_logo.jpeg" alt="MWK Logo" width={32} height={32} className="rounded-full" />
+          <span className="text-xl font-bold text-white">MWK</span>
+        </div>
 
         {/* Navigation Links */}
         <div className="hidden md:flex gap-6 text-sm font-medium">
@@ -145,8 +149,7 @@ export default function Navbar() {
                   MSE Trade
                 </p>
                 <h2
-                  className="text-2xl font-bold text-white"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                  className="text-2xl font-bold text-white font-playfair"
                 >
                   Welcome back
                 </h2>

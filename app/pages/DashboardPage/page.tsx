@@ -110,8 +110,7 @@ export default function DashboardPage() {
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">Dashboard</p>
           <h1
-            className="text-3xl md:text-4xl font-bold text-white"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-3xl md:text-4xl font-bold text-white font-playfair"
           >
             Welcome back
           </h1>

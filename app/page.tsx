@@ -74,8 +74,7 @@ export default function LandingPage() {
             Malawi Stock Exchange
           </p>
           <h1
-            className="text-5xl md:text-6xl font-bold text-white leading-[1.1] mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-5xl md:text-6xl font-bold text-white leading-[1.1] mb-6 font-playfair"
           >
             Invest in Malawi's
             <br />
@@ -182,8 +181,7 @@ export default function LandingPage() {
               Listed Companies
             </p>
             <h2
-              className="text-2xl font-bold text-white"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-bold text-white font-playfair"
             >
               Browse the Market
             </h2>

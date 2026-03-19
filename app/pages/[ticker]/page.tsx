@@ -164,7 +164,7 @@ export default function CompanyPage() {
                   {info.sector}
                 </p>
               )}
-              <h1 className="text-4xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h1 className="text-4xl font-bold text-white font-playfair">
                 {info?.fullName ?? ticker}
               </h1>
               <p className="text-white/30 text-sm mt-1">{ticker} · MSE</p>

@@ -22,6 +22,16 @@ interface UploadedFile {
   type: string;
 }
 
+const FILE_KEYS = ["certifiedId", "passportPhoto", "proofOfAddress", "companyDocs"] as const;
+type FileKey = (typeof FILE_KEYS)[number];
+
+const FILE_ACCEPTS: Record<FileKey, string> = {
+  certifiedId: ".jpg,.jpeg,.png,.pdf",
+  passportPhoto: ".jpg,.jpeg,.png",
+  proofOfAddress: ".jpg,.jpeg,.png,.pdf",
+  companyDocs: ".jpg,.jpeg,.png,.pdf",
+};
+
 export default function AccountCreationPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -31,7 +41,7 @@ export default function AccountCreationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFile | null>>({
+  const [uploadedFiles, setUploadedFiles] = useState<Record<FileKey, UploadedFile | null>>({
     certifiedId: null,
     passportPhoto: null,
     proofOfAddress: null,
@@ -39,7 +49,19 @@ export default function AccountCreationPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Refs live at the top level — never remount, always valid
+  const certifiedIdRef = useRef<HTMLInputElement>(null);
+  const passportPhotoRef = useRef<HTMLInputElement>(null);
+  const proofOfAddressRef = useRef<HTMLInputElement>(null);
+  const companyDocsRef = useRef<HTMLInputElement>(null);
+
+  const fileRefs: Record<FileKey, React.RefObject<HTMLInputElement | null>> = {
+    certifiedId: certifiedIdRef,
+    passportPhoto: passportPhotoRef,
+    proofOfAddress: proofOfAddressRef,
+    companyDocs: companyDocsRef,
+  };
 
   const [form, setForm] = useState({
     fullName: "",
@@ -112,16 +134,11 @@ export default function AccountCreationPage() {
       }
       if (!form.physicalAddress.trim()) newErrors.physicalAddress = "Physical address is required";
       if (!form.telephone.trim()) newErrors.telephone = "Telephone is required";
-      // if (!form.cellphone.trim()) newErrors.cellphone = "Cellphone is required";
       if (!form.email.trim()) newErrors.email = "Email address is required";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "Please enter a valid email";
     }
 
     if (step === 3) {
-      // if (!form.bankName.trim()) newErrors.bankName = "Bank name is required";
-      // if (!form.bankBranchCode.trim()) newErrors.bankBranchCode = "Branch code is required";
-      // if (!form.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
-      // if (!form.accountName.trim()) newErrors.accountName = "Account name is required";
       if (!form.primarySignatureDate) newErrors.primarySignatureDate = "Please select a date";
       if (applicantType === "joint" && !form.jointSignatureDate) newErrors.jointSignatureDate = "Please select a date";
     }
@@ -129,7 +146,6 @@ export default function AccountCreationPage() {
     if (step === 4) {
       if (!uploadedFiles.certifiedId) newErrors.certifiedId = "Certified copy of ID is required";
       if (!uploadedFiles.passportPhoto) newErrors.passportPhoto = "Passport photo is required";
-      // if (!uploadedFiles.passportPhoto2) newErrors.passportPhoto2 = "Second passport photo is required";
     }
 
     if (step === 5) {
@@ -198,19 +214,19 @@ export default function AccountCreationPage() {
       }
       formData.append("username", form.username);
       formData.append("password", form.password);
-      const fileKeys: Record<string, string> = {
+
+      // File fields — refs are stable so files are always accessible
+      const fileFieldNames: Record<FileKey, string> = {
         certifiedId: "certified_id",
-        passportPhoto1: "passport_photo_1",
-        passportPhoto2: "passport_photo_2",
+        passportPhoto: "passport_photo",
         proofOfAddress: "proof_of_address",
         companyDocs: "company_docs",
       };
-      for (const [stateKey, fieldName] of Object.entries(fileKeys)) {
-        const inputEl = fileInputRefs.current[stateKey];
-        if (inputEl?.files?.[0]) {
-          formData.append(fieldName, inputEl.files[0]);
-        }
+      for (const key of FILE_KEYS) {
+        const file = fileRefs[key].current?.files?.[0];
+        if (file) formData.append(fileFieldNames[key], file);
       }
+
       const res = await fetch("https://kwatcha-api.onrender.com/create_account", {
         method: "POST",
         body: formData,
@@ -228,14 +244,17 @@ export default function AccountCreationPage() {
     }
   };
 
-  const handleFileUpload = (key: string, file: File | null) => {
+  const handleFileChange = (key: FileKey, file: File | null) => {
     if (!file) return;
     setUploadedFiles((prev) => ({ ...prev, [key]: { name: file.name, size: file.size, type: file.type } }));
     clearError(key);
   };
 
-  const removeFile = (key: string) => {
+  const removeFile = (key: FileKey) => {
     setUploadedFiles((prev) => ({ ...prev, [key]: null }));
+    // Reset the actual input so the same file can be re-selected
+    const input = fileRefs[key].current;
+    if (input) input.value = "";
   };
 
   const formatSize = (bytes: number) => {
@@ -318,9 +337,10 @@ export default function AccountCreationPage() {
     </div>
   );
 
+  // FileUploadCard no longer owns the <input> — it just triggers the top-level ref
   const FileUploadCard = ({
-    label, docKey, accept, hint, required = false,
-  }: { label: string; docKey: string; accept: string; hint?: string; required?: boolean }) => {
+    label, docKey, hint, required = false,
+  }: { label: string; docKey: FileKey; hint?: string; required?: boolean }) => {
     const file = uploadedFiles[docKey];
     return (
       <div className="flex flex-col gap-1">
@@ -347,7 +367,7 @@ export default function AccountCreationPage() {
             </button>
           </div>
         ) : (
-          <button type="button" onClick={() => fileInputRefs.current[docKey]?.click()}
+          <button type="button" onClick={() => fileRefs[docKey].current?.click()}
             className={`rounded-lg border-2 border-dashed px-4 py-5 text-center transition-all hover:border-blue-500/40 hover:bg-blue-500/5 ${
               errors[docKey] ? "border-red-500/40 bg-red-500/5" : "border-white/10 bg-white/3"
             }`}>
@@ -358,13 +378,6 @@ export default function AccountCreationPage() {
             {hint && <p className="text-white/20 text-xs mt-1">{hint}</p>}
           </button>
         )}
-        <input
-          ref={(el) => { fileInputRefs.current[docKey] = el; }}
-          type="file"
-          accept={accept}
-          className="hidden"
-          onChange={(e) => handleFileUpload(docKey, e.target.files?.[0] ?? null)}
-        />
         <ErrorMsg field={docKey} />
       </div>
     );
@@ -420,13 +433,13 @@ export default function AccountCreationPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Application Submitted</h2>
+          <h2 className="text-3xl font-bold text-white mb-3 font-playfair">Application Submitted</h2>
           <p className="text-white/50 text-sm leading-relaxed mb-2">Your CSD Securities Account application has been received.</p>
           <p className="text-white/40 text-sm leading-relaxed mb-8">
             Your trading account username is <span className="text-blue-300 font-semibold">{form.username}</span>. You will be notified via <span className="text-blue-300">{form.email}</span> once your account is approved.
           </p>
           <Button
-            onClick={() => router.push("/")} 
+            onClick={() => router.push("/")}
             className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -439,6 +452,19 @@ export default function AccountCreationPage() {
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)" }}>
+
+      {/* Hidden file inputs — live at the top level so refs are always stable */}
+      {FILE_KEYS.map((key) => (
+        <input
+          key={key}
+          ref={fileRefs[key]}
+          type="file"
+          accept={FILE_ACCEPTS[key]}
+          className="hidden"
+          onChange={(e) => handleFileChange(key, e.target.files?.[0] ?? null)}
+        />
+      ))}
+
       {/* Header */}
       <div className="border-b border-white/5 px-6 md:px-12 py-5 flex items-center justify-between">
         <a href="/" className="text-xl font-bold text-white">MSE Trade</a>
@@ -454,7 +480,7 @@ export default function AccountCreationPage() {
         {/* Title */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">CSD Form F1</p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight font-playfair">
             Securities Account<br /><span className="text-white/40">Opening Form</span>
           </h1>
           <p className="text-white/40 text-sm mt-3">Central Securities Depository — Reserve Bank of Malawi</p>
@@ -584,14 +610,6 @@ export default function AccountCreationPage() {
               <h2 className="text-xl font-semibold text-white mb-1">Bank & Broker Details</h2>
               <p className="text-white/40 text-sm mb-8">These details are used for dividend disbursements and broker mandate.</p>
 
-              {/* <SectionHeader title="Dividend Disposal Instruction" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Bank Name" field="bankName" required placeholder="e.g. National Bank of Malawi" />
-                <InputField label="Bank Branch Code" field="bankBranchCode" required placeholder="e.g. 0001" />
-                <InputField label="Account Number" field="accountNumber" required />
-                <div className="md:col-span-2"><InputField label="Account Name" field="accountName" required placeholder="As registered with the bank" /></div>
-              </div> */}
-
               <SectionHeader title="Stockbrokers Mandate" />
               <div className="rounded-xl border border-white/8 bg-white/3 p-5 text-sm text-white/60 leading-relaxed space-y-3">
                 <p>I/We hereby confirm that I/we appoint <span className="text-blue-300 font-semibold">XYZ Capital Pte Ltd</span> to manage my/our CSD Securities Account on our behalf, in accordance with the Terms and Conditions of the Depository in force from time to time.</p>
@@ -615,12 +633,12 @@ export default function AccountCreationPage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <FileUploadCard label="Certified Copy of ID" docKey="certifiedId" accept=".jpg,.jpeg,.png,.pdf" hint="JPG, PNG or PDF • Max 5MB" required />
-                <FileUploadCard label="Passport Photo" docKey="passportPhoto" accept=".jpg,.jpeg,.png" hint="JPG or PNG • Recent photo" required />
-                <FileUploadCard label="Proof of Address" docKey="proofOfAddress" accept=".jpg,.jpeg,.png,.pdf" hint="Utility bill or bank statement (optional)" />
+                <FileUploadCard label="Certified Copy of ID" docKey="certifiedId" hint="JPG, PNG or PDF • Max 5MB" required />
+                <FileUploadCard label="Passport Photo" docKey="passportPhoto" hint="JPG or PNG • Recent photo" required />
+                <FileUploadCard label="Proof of Address" docKey="proofOfAddress" hint="Utility bill or bank statement (optional)" />
                 {applicantType === "company" && (
                   <div className="md:col-span-2">
-                    <FileUploadCard label="Company Registration Documents" docKey="companyDocs" accept=".jpg,.jpeg,.png,.pdf" hint="Certificate of incorporation or equivalent" />
+                    <FileUploadCard label="Company Registration Documents" docKey="companyDocs" hint="Certificate of incorporation or equivalent" />
                   </div>
                 )}
               </div>
@@ -642,7 +660,6 @@ export default function AccountCreationPage() {
 
               <SectionHeader title="Account Credentials" />
               <div className="space-y-5">
-                {/* Username */}
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
                     Username <span className="text-red-400">*</span>
@@ -661,7 +678,6 @@ export default function AccountCreationPage() {
                   <ErrorMsg field="username" />
                 </div>
 
-                {/* Password */}
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
                     Password <span className="text-red-400">*</span>
@@ -685,7 +701,6 @@ export default function AccountCreationPage() {
                   <ErrorMsg field="password" />
                 </div>
 
-                {/* Confirm Password */}
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
                     Confirm Password <span className="text-red-400">*</span>
@@ -757,7 +772,6 @@ export default function AccountCreationPage() {
               </button>
               {!agreed && <p className="text-xs text-white/30 mt-2 ml-8">You must agree before submitting.</p>}
 
-              {/* Summary */}
               <div className="mt-6 rounded-xl border border-white/8 bg-white/3 p-5">
                 <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-4">Application Summary</p>
                 <div className="grid grid-cols-2 gap-y-3 text-sm">
@@ -782,7 +796,6 @@ export default function AccountCreationPage() {
           )}
         </div>
 
-        {/* Submit error */}
         {submitError && (
           <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
             <svg className="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -795,7 +808,6 @@ export default function AccountCreationPage() {
           </div>
         )}
 
-        {/* Navigation */}
         <div className="flex justify-between mt-6">
           <Button
             type="button"

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --font-playfair: var(--font-playfair);
+}
+
 :root {
   --background: #000000;
   --foreground: #e5e7eb;
