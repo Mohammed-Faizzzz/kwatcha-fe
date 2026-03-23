@@ -115,7 +115,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-4">
             <Button
               size="lg"
-              onClick={() => router.push("/market")}
+              onClick={() => router.push("pages/Market")}
               className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 rounded-xl gap-2 transition-all"
             >
               Explore Market <ArrowRight size={16} />
