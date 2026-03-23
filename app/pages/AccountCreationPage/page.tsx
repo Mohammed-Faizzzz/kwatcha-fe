@@ -227,7 +227,7 @@ export default function AccountCreationPage() {
         if (file) formData.append(fileFieldNames[key], file);
       }
 
-      const res = await fetch("https://kwatcha-api.onrender.com/create_account", {
+      const res = await fetch("https://kwatcha-api-production.up.railway.app/create_account", {
         method: "POST",
         body: formData,
       });

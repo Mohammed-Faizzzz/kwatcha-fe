@@ -58,8 +58,8 @@ export default function LandingPage() {
     const fetchData = async () => {
       try {
         const [stocksRes, moversRes] = await Promise.all([
-          fetch("https://kwatcha-api.onrender.com/stocks"),
-          fetch("https://kwatcha-api.onrender.com/stocks/movers"),
+          fetch("https://kwatcha-api-production.up.railway.app/stocks"),
+          fetch("https://kwatcha-api-production.up.railway.app/stocks/movers"),
         ]);
         const stocksData: MarketResponse = await stocksRes.json();
         const moversData: MoversResponse = await moversRes.json();

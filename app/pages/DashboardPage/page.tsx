@@ -20,7 +20,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await fetch("https://kwatcha-api.onrender.com/stocks");
+        const res = await fetch("https://kwatcha-api-production.up.railway.app/stocks");
         const data = await res.json();
         setStocks(data.stocks);
       } catch (err) {

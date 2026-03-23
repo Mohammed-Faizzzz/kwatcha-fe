@@ -39,7 +39,7 @@ export default function Navbar() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("https://kwatcha-api.onrender.com/login", {
+      const res = await fetch("https://kwatcha-api-production.up.railway.app/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

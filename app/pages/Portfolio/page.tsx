@@ -49,7 +49,7 @@ export default function PortfolioPage() {
   }, []);
 
   useEffect(() => {
-    fetch("https://kwatcha-api.onrender.com/stocks")
+    fetch("https://kwatcha-api-production.up.railway.app/stocks")
       .then(r => r.json())
       .then(data => {
         const map: StockPrices = {};

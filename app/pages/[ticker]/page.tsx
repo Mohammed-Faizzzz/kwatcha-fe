@@ -42,7 +42,7 @@ export default function CompanyPage() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const res = await fetch("https://kwatcha-api.onrender.com/stocks");
+        const res = await fetch("https://kwatcha-api-production.up.railway.app/stocks");
         const data = await res.json();
         setStock(data.stocks[ticker] || null);
       } catch (err) {
@@ -109,7 +109,7 @@ export default function CompanyPage() {
     setOrderError(null);
     setOrderSuccess(null);
     try {
-      const res = await fetch("https://kwatcha-api.onrender.com/orders", {
+      const res = await fetch("https://kwatcha-api-production.up.railway.app/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
