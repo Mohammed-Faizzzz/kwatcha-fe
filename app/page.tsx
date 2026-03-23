@@ -247,12 +247,12 @@ export default function LandingPage() {
               Browse the Market
             </h2>
           </div>
-          <a
-            href="/market"
+          <button
+            onClick={() => router.push("pages/Market")}
             className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors flex items-center gap-1"
           >
             View all <ArrowRight size={14} />
-          </a>
+          </button>
         </div>
 
         {loading ? (
