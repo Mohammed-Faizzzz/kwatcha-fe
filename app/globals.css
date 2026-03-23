@@ -9,8 +9,12 @@
   --foreground: #e5e7eb;
 }
 
-html,
+html {
+  background-color: #000000;
+}
+
 body {
+  background-color: #000000;
   background: radial-gradient(
       1200px 600px at top center,
       rgba(59, 130, 246, 0.08),
