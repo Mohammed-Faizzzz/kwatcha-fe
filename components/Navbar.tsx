@@ -70,22 +70,23 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full backdrop-blur-lg bg-black/50 border-b border-white/10 shadow-lg z-50 px-8 py-4 flex items-center justify-between">
+      <nav className="fixed top-4 left-44 right-44 backdrop-blur-xl bg-white/[0.06] border border-white/10 shadow-2xl shadow-black/40 z-50 px-10 py-5 flex items-center justify-between rounded-2xl">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Image src="/MWK_logo.jpeg" alt="MWK Logo" width={32} height={32} className="rounded-full" />
-          <span className="text-xl font-bold text-white">MWK</span>
+          <Image src="/MWK_logo.jpeg" alt="MWK Logo" width={36} height={36} className="rounded-full" />
+          <span className="text-2xl font-bold text-white tracking-tight">MWK</span>
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex gap-6 text-sm font-medium">
-          {["Market", "Companies", "Insights", "Portfolio"].map((section) => (
+        <div className="hidden md:flex gap-8 text-sm font-semibold tracking-wide">
+          {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : [])].map((section) => (
             <a
               key={section}
               href={`#${section.toLowerCase()}`}
-              className="text-white/70 hover:text-blue-400 transition-colors"
+              className="relative text-white/60 hover:text-white transition-all duration-200 group"
             >
               {section}
+              <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-blue-400 group-hover:w-full transition-all duration-300 ease-out" />
             </a>
           ))}
         </div>

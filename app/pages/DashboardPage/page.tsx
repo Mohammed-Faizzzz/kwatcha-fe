@@ -75,7 +75,7 @@ export default function DashboardPage() {
       }}
     >
       {/* Header */}
-      <div className="border-b border-white/5 px-6 md:px-12 py-5 flex items-center justify-between">
+      <div className="border-b border-white/5 px-4 md:px-6 py-5 flex items-center justify-between">
         <div className="text-xl font-bold text-white">MSE Trade</div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 md:px-12 py-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
         {/* Welcome */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">Dashboard</p>

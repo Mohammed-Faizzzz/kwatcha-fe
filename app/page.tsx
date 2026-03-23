@@ -99,7 +99,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <section className="px-6 md:px-12 pt-32 pb-24 max-w-6xl mx-auto">
+      <section className="px-4 md:px-6 pt-32 pb-24 max-w-7xl mx-auto">
         <div className="max-w-3xl">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-4">
             Malawi Stock Exchange
@@ -149,7 +149,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Market Snapshot ── */}
-      <section id="market" className="px-6 md:px-12 pb-20 max-w-6xl mx-auto">
+      <section id="market" className="px-4 md:px-6 pb-20 max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/20" />
           <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400/80 px-2">
@@ -237,7 +237,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Companies Preview ── */}
-      <section id="companies" className="px-6 md:px-12 pb-28 max-w-6xl mx-auto">
+      <section id="companies" className="px-4 md:px-6 pb-28 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
             <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">

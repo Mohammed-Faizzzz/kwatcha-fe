@@ -146,7 +146,7 @@ export default function CompanyPage() {
     >
       <Navbar />
 
-      <section className="px-6 md:px-12 pt-28 pb-12 max-w-5xl mx-auto space-y-8">
+      <section className="px-4 md:px-6 pt-28 pb-12 max-w-7xl mx-auto space-y-8">
 
         {/* Header */}
         <div>

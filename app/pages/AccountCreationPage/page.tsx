@@ -466,7 +466,7 @@ export default function AccountCreationPage() {
       ))}
 
       {/* Header */}
-      <div className="border-b border-white/5 px-6 md:px-12 py-5 flex items-center justify-between">
+      <div className="border-b border-white/5 px-4 md:px-6 py-5 flex items-center justify-between">
         <a href="/" className="text-xl font-bold text-white">MSE Trade</a>
         <div className="flex items-center gap-2 text-xs text-white/40">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

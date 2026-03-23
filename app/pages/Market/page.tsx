@@ -161,7 +161,7 @@ export default function MarketPage() {
     >
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 md:px-12 pt-32 pb-28">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-28">
         {/* Page header */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-3">

@@ -89,7 +89,7 @@ export default function PortfolioPage() {
     <div className="min-h-screen bg-black text-white pb-16"
       style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.07) 0%, transparent 60%)" }}>
       <Navbar />
-      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-28 pb-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-12 space-y-8">
 
         <div>
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-1">
