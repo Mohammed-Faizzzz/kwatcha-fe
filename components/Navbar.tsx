@@ -70,7 +70,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-4 left-44 right-44 backdrop-blur-xl bg-white/[0.06] border border-white/10 shadow-2xl shadow-black/40 z-50 px-10 py-5 flex items-center justify-between rounded-2xl">
+      <div className="fixed top-4 left-0 right-0 z-50 px-4 md:px-6">
+      <nav className="max-w-7xl mx-auto backdrop-blur-xl bg-white/[0.06] border border-white/10 shadow-2xl shadow-black/40 px-10 py-5 flex items-center justify-between rounded-2xl">
         {/* Logo */}
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
           <Image src="/MWK_logo.jpeg" alt="MWK Logo" width={36} height={36} className="rounded-full" />
@@ -127,6 +128,7 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+      </div>
 
       {/* Login Modal Overlay */}
       {showLogin && (
