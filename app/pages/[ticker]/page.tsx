@@ -38,6 +38,7 @@ export default function CompanyPage() {
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+  const [priceHistory, setPriceHistory] = useState<{ date: string; close: number }[]>([]);
 
   const info = companyData[ticker];
 
@@ -55,6 +56,25 @@ export default function CompanyPage() {
       }
     };
     fetchStock();
+  }, [ticker]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const data = await apiFetch<{ history: { close: number; snapshot_at: string }[] }>(
+          `https://kwatcha-api-production.up.railway.app/history/${ticker}`
+        );
+        setPriceHistory(
+          data.history.map((h) => ({
+            date: new Date(h.snapshot_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }),
+            close: h.close,
+          }))
+        );
+      } catch {
+        // silently fall back to empty — chart will show "not available"
+      }
+    };
+    fetchHistory();
   }, [ticker]);
 
   useEffect(() => {
@@ -237,9 +257,9 @@ export default function CompanyPage() {
         {/* Chart */}
         <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
           <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-4">Price History</p>
-          {stock.history && stock.history.length > 0 ? (
+          {priceHistory.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={stock.history}>
+              <LineChart data={priceHistory}>
                 <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} width={60} />
                 <Tooltip
