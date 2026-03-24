@@ -234,9 +234,10 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {stocks &&
               Object.entries(stocks).map(([name, details]) => {
-                const change = parseFloat(details.change) || 0;
-                const isPositive = change > 0;
-                const isNegative = change < 0;
+                const pctChange = details.pct_change * 100;
+                const absChange = details.change;
+                const isPositive = absChange > 0;
+                const isNegative = absChange < 0;
                 return (
                   <div
                     key={name}
@@ -256,7 +257,7 @@ export default function LandingPage() {
                       >
                         {!isPositive && !isNegative
                           ? <><ChevronsLeftRight size={10} /> 0.00%</>
-                          : <>{isPositive ? "+" : ""}{change.toFixed(2)}%</>
+                          : <>{isPositive ? "+" : ""}{pctChange.toFixed(2)}%</>
                         }
                       </span>
                     </div>
@@ -271,6 +272,9 @@ export default function LandingPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex gap-4 text-xs text-white/25">
                         <span>Vol: {Number(details.volume || 0).toLocaleString()}</span>
+                        <span className={isPositive ? "text-green-400/60" : isNegative ? "text-red-400/60" : ""}>
+                          {isPositive ? "+" : ""}{absChange.toFixed(2)} MWK
+                        </span>
                       </div>
                       <span className="text-blue-400/60 text-xs group-hover:text-blue-400 transition-colors flex items-center gap-1">
                         View <ArrowRight size={12} />

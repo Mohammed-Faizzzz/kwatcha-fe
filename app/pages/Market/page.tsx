@@ -18,7 +18,7 @@ import { API_BASE } from "@/lib/constants";
 import { getMarketStatus } from "@/lib/marketUtils";
 import type { StockData, MarketResponse, MoversResponse } from "@/types/market";
 
-type SortKey = "name" | "close" | "open" | "change" | "volume" | "turnover";
+type SortKey = "name" | "close" | "open" | "change" | "pct_change" | "volume" | "turnover";
 type SortDir = "asc" | "desc";
 
 export default function MarketPage() {
@@ -69,8 +69,8 @@ export default function MarketPage() {
     if (!stocks) return [];
     let entries = Object.entries(stocks);
 
-    if (activeTab === "gainers") entries = entries.filter(([, d]) => parseFloat(d.change) > 0);
-    if (activeTab === "losers") entries = entries.filter(([, d]) => parseFloat(d.change) < 0);
+    if (activeTab === "gainers") entries = entries.filter(([, d]) => d.pct_change > 0);
+    if (activeTab === "losers") entries = entries.filter(([, d]) => d.pct_change < 0);
 
     if (search.trim()) {
       const q = search.trim().toLowerCase();
@@ -84,8 +84,8 @@ export default function MarketPage() {
         bv = b[0];
         return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
       }
-      av = parseFloat(a[1][sortKey]) || 0;
-      bv = parseFloat(b[1][sortKey]) || 0;
+      av = parseFloat(String(a[1][sortKey])) || 0;
+      bv = parseFloat(String(b[1][sortKey])) || 0;
       return sortDir === "asc" ? av - bv : bv - av;
     });
 
@@ -312,7 +312,7 @@ export default function MarketPage() {
                   <SortHeader label="Volume" col="volume" />
                 </div>
                 <div className="text-right">
-                  <SortHeader label="Change" col="change" />
+                  <SortHeader label="Change" col="pct_change" />
                 </div>
               </div>
 
@@ -322,9 +322,10 @@ export default function MarketPage() {
                   <p className="text-white/20 text-sm py-8 text-center">No stocks found.</p>
                 ) : (
                   filteredAndSorted.map(([name, d]) => {
-                    const change = parseFloat(d.change) || 0;
-                    const isPos = change > 0;
-                    const isNeg = change < 0;
+                    const pctChange = d.pct_change * 100;
+                    const absChange = d.change;
+                    const isPos = pctChange > 0;
+                    const isNeg = pctChange < 0;
                     return (
                       <div
                         key={name}
@@ -368,8 +369,11 @@ export default function MarketPage() {
                               <ChevronsLeftRight size={11} />
                             )}
                             {isPos ? "+" : ""}
-                            {change.toFixed(2)}%
+                            {pctChange.toFixed(2)}%
                           </span>
+                          <p className="text-white/25 text-xs mt-0.5">
+                            {isPos ? "+" : ""}{absChange.toFixed(2)} MWK
+                          </p>
                         </div>
                       </div>
                     );

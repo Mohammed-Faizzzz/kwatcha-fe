@@ -2,7 +2,8 @@ export interface StockData {
   url: string;
   open: string;
   close: string;
-  change: string;
+  change: number;
+  pct_change: number;
   volume: string;
   turnover: string;
 }

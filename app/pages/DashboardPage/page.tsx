@@ -36,15 +36,15 @@ export default function DashboardPage() {
 
   const gainers = stocks
     ? Object.entries(stocks)
-        .filter(([, d]) => parseFloat(d.change) > 0)
-        .sort((a, b) => parseFloat(b[1].change) - parseFloat(a[1].change))
+        .filter(([, d]) => d.pct_change > 0)
+        .sort((a, b) => b[1].pct_change - a[1].pct_change)
         .slice(0, 3)
     : [];
 
   const losers = stocks
     ? Object.entries(stocks)
-        .filter(([, d]) => parseFloat(d.change) < 0)
-        .sort((a, b) => parseFloat(a[1].change) - parseFloat(b[1].change))
+        .filter(([, d]) => d.pct_change < 0)
+        .sort((a, b) => a[1].pct_change - b[1].pct_change)
         .slice(0, 3)
     : [];
 
@@ -148,7 +148,7 @@ export default function DashboardPage() {
                       <p className="text-white font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
                       <p className="text-white/30 text-xs">MK {Number(d.close).toLocaleString()}</p>
                     </div>
-                    <span className="text-green-400 text-sm font-bold">+{parseFloat(d.change).toFixed(2)}%</span>
+                    <span className="text-green-400 text-sm font-bold">+{(d.pct_change * 100).toFixed(2)}%</span>
                   </div>
                 ))}
               </div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                       <p className="text-white font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
                       <p className="text-white/30 text-xs">MK {Number(d.close).toLocaleString()}</p>
                     </div>
-                    <span className="text-red-400 text-sm font-bold">{parseFloat(d.change).toFixed(2)}%</span>
+                    <span className="text-red-400 text-sm font-bold">{(d.pct_change * 100).toFixed(2)}%</span>
                   </div>
                 ))}
               </div>
@@ -212,8 +212,8 @@ export default function DashboardPage() {
                 <span className="text-right">Change</span>
               </div>
               {stocks && Object.entries(stocks).map(([name, d]) => {
-                const change = parseFloat(d.change) || 0;
-                const isPos = change >= 0;
+                const pctChange = d.pct_change * 100;
+                const isPos = pctChange >= 0;
                 return (
                   <div
                     key={name}
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                     <span className="text-white/70 text-sm text-right">MK {Number(d.close).toLocaleString()}</span>
                     <span className="text-white/40 text-sm text-right">{Number(d.volume || 0).toLocaleString()}</span>
                     <span className={`text-sm text-right font-semibold ${isPos ? "text-green-400" : "text-red-400"}`}>
-                      {isPos ? "+" : ""}{change.toFixed(2)}%
+                      {isPos ? "+" : ""}{pctChange.toFixed(2)}%
                     </span>
                   </div>
                 );

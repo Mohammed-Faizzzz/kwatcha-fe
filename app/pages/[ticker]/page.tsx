@@ -16,7 +16,8 @@ interface StockData {
   ticker: string;
   open?: string | number;
   close?: string | number;
-  change?: string | number;
+  change?: number;
+  pct_change?: number;
   volume?: string | number;
   yearChange?: string | number;
   week52Range?: [string | number, string | number];
@@ -51,6 +52,7 @@ export default function CompanyPage() {
           `${API_BASE}/stocks`
         );
         setStock(data.stocks[ticker] || null);
+        console.log(stock);
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to load stock data.");
       } finally {
@@ -110,7 +112,8 @@ export default function CompanyPage() {
 
   const open = Number(stock.open ?? 0);
   const close = Number(stock.close ?? 0);
-  const change = Number(stock.change ?? 0);
+  const absChange = Number(stock.change ?? 0);
+  const pctChange = Number(stock.pct_change ?? 0) * 100;
   const volume = Number(stock.volume ?? 0);
   const yearChange = Number(stock.yearChange ?? 0);
   const week52Range: [number, number] = [
@@ -119,9 +122,9 @@ export default function CompanyPage() {
   ];
   const liquidity = Number(stock.liquidity ?? 0);
   const marketCap = Number(stock.marketCap ?? 0);
-  const isPositive = change > 0;
-  const isNegative = change < 0;
-  const isUnchanged = change === 0;
+  const isPositive = absChange > 0;
+  const isNegative = absChange < 0;
+  const isUnchanged = absChange === 0;
 
   const tabs = ["background", "financials", "leadership", "news", "sustainability"];
 
@@ -204,7 +207,7 @@ export default function CompanyPage() {
               </p>
               <p className={`text-sm font-semibold mt-1 flex items-center justify-end gap-1 ${isUnchanged ? "text-yellow-400" : isPositive ? "text-green-400" : "text-red-400"}`}>
                 {isUnchanged ? <ChevronsLeftRight size={14} /> : null}
-                {isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${change.toFixed(2)}%`} today
+                {isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${pctChange.toFixed(2)}%`} today
               </p>
             </div>
           </div>
@@ -215,7 +218,8 @@ export default function CompanyPage() {
           {[
             { label: "Open", value: `MK ${open.toLocaleString()}` },
             { label: "Close", value: `MK ${close.toLocaleString()}` },
-            { label: "Today's Change", value: isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${change.toFixed(2)}%` },
+            { label: "Change (MWK)", value: isUnchanged ? "0.00" : `${isPositive ? "+" : ""}${absChange.toFixed(2)}` },
+            { label: "Change (%)", value: isUnchanged ? "0.00%" : `${isPositive ? "+" : ""}${pctChange.toFixed(2)}%` },
             { label: "Volume", value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : volume.toString() },
             { label: "1 Year Change", value: `${yearChange >= 0 ? "+" : ""}${yearChange.toFixed(2)}%` },
             { label: "52 Week Range", value: `${week52Range[0].toLocaleString()} – ${week52Range[1].toLocaleString()}` },
