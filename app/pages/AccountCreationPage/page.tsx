@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { API_BASE } from "@/lib/constants";
 
 type ApplicantType = "individual" | "joint" | "company";
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -227,7 +228,7 @@ export default function AccountCreationPage() {
         if (file) formData.append(fileFieldNames[key], file);
       }
 
-      const res = await fetch("https://kwatcha-api-production.up.railway.app/create_account", {
+      const res = await fetch(`${API_BASE}/create_account`, {
         method: "POST",
         body: formData,
       });

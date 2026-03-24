@@ -4,26 +4,23 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiFetch";
-
-interface StockData {
-  open: string;
-  close: string;
-  change: string;
-  volume: string;
-}
+import { API_BASE } from "@/lib/constants";
+import { getMarketStatus } from "@/lib/marketUtils";
+import { useAuth } from "@/hooks/useAuth";
+import type { StockData } from "@/types/market";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { username: loggedInUser, logout } = useAuth();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStocks = async () => {
       try {
         const data = await apiFetch<{ stocks: Record<string, StockData> }>(
-          "https://kwatcha-api-production.up.railway.app/stocks"
+          `${API_BASE}/stocks`
         );
         setStocks(data.stocks);
       } catch (err) {
@@ -35,25 +32,7 @@ export default function DashboardPage() {
     fetchStocks();
   }, []);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("mse_user");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.loggedIn) setLoggedInUser(parsed.username);
-      } catch {}
-    }
-  }, []);
-
-  const calcMarketStatus = () => {
-    const now = new Date();
-    const malawiTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-    const isWeekday = malawiTime.getDay() !== 0 && malawiTime.getDay() !== 6;
-    const isMarketOpen = malawiTime.getHours() >= 9 && malawiTime.getHours() < 17;
-    return isWeekday && isMarketOpen ? "Open" : "Closed";
-  };
-
-  const marketStatus = calcMarketStatus();
+  const marketStatus = getMarketStatus();
 
   const gainers = stocks
     ? Object.entries(stocks)
@@ -96,10 +75,7 @@ export default function DashboardPage() {
               Portfolio
             </Button>
             <Button
-              onClick={() => {
-                localStorage.removeItem("mse_user");
-                router.push("/");
-              }}
+              onClick={() => { logout(); router.push("/"); }}
               className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
             >
               Sign Out

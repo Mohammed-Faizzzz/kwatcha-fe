@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { API_BASE } from "@/lib/constants";
 
 export default function Navbar() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function Navbar() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("https://kwatcha-api-production.up.railway.app/login", {
+      const res = await fetch(`${API_BASE}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

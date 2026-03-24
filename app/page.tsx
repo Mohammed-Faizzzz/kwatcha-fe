@@ -6,48 +6,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
-
-interface StockData {
-  url: string;
-  open: string;
-  close: string;
-  change: string;
-  volume: string;
-  turnover: string;
-}
-
-interface MarketResponse {
-  status: string;
-  market: string;
-  last_updated: string;
-  count: number;
-  stocks: Record<string, StockData>;
-}
-
-interface MoverEntry {
-  ticker: string;
-  change: number;
-  volume: number;
-  turnover: number;
-  close?: number;
-}
-
-interface MoversResponse {
-  status: string;
-  market: string;
-  summary: {
-    total_stocks: number;
-    gainers: number;
-    losers: number;
-    unchanged: number;
-    total_volume: number;
-    total_turnover: number;
-  };
-  top_gainers: MoverEntry[];
-  top_losers: MoverEntry[];
-  highest_volume: MoverEntry[];
-  highest_turnover: MoverEntry[];
-}
+import { API_BASE } from "@/lib/constants";
+import { getMarketStatus } from "@/lib/marketUtils";
+import type { StockData, MarketResponse, MoversResponse } from "@/types/market";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -61,8 +22,8 @@ export default function LandingPage() {
       try {
         setError(null);
         const [stocksData, moversData] = await Promise.all([
-          apiFetch<MarketResponse>("https://kwatcha-api-production.up.railway.app/stocks"),
-          apiFetch<MoversResponse>("https://kwatcha-api-production.up.railway.app/stocks/movers"),
+          apiFetch<MarketResponse>(`${API_BASE}/stocks`),
+          apiFetch<MoversResponse>(`${API_BASE}/stocks/movers`),
         ]);
         setStocks(stocksData.stocks);
         setMovers(moversData);
@@ -78,16 +39,7 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const calcMarketStatus = () => {
-    const now = new Date();
-    const utcOffset = 2;
-    const malawiTime = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
-    const isWeekday = malawiTime.getDay() !== 0 && malawiTime.getDay() !== 6;
-    const isMarketOpen = malawiTime.getHours() >= 9 && malawiTime.getHours() < 17;
-    return isWeekday && isMarketOpen ? "Open" : "Closed";
-  };
-
-  const marketStatus = calcMarketStatus();
+  const marketStatus = getMarketStatus();
 
   return (
     <div

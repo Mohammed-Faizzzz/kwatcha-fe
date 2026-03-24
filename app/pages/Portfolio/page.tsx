@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { companyData } from "@/lib/companyData";
 import { apiFetch } from "@/lib/apiFetch";
+import { API_BASE } from "@/lib/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Holding { ticker: string; shares: number; avgCost: number; }
 interface Order { id: string; ticker: string; type: "buy"|"sell"; shares: number; price: number; status: "filled"|"pending"|"cancelled"; date: string; }
@@ -33,26 +35,19 @@ const MOCK_CASH = 450000;
 
 export default function PortfolioPage() {
   const router = useRouter();
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+  const { username: loggedInUser, loaded: authLoaded } = useAuth();
   const [prices, setPrices] = useState<StockPrices>({});
   const [loadingPrices, setLoadingPrices] = useState(true);
   const [priceError, setPriceError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"holdings"|"orders">("holdings");
 
   useEffect(() => {
-    const stored = localStorage.getItem("mse_user");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.loggedIn) setLoggedInUser(parsed.username);
-        else router.push("/");
-      } catch { router.push("/"); }
-    } else router.push("/");
-  }, []);
+    if (authLoaded && !loggedInUser) router.push("/");
+  }, [authLoaded, loggedInUser, router]);
 
   useEffect(() => {
     apiFetch<{ stocks: Record<string, { close: string | number }> }>(
-      "https://kwatcha-api-production.up.railway.app/stocks"
+      `${API_BASE}/stocks`
     )
       .then(data => {
         const map: StockPrices = {};

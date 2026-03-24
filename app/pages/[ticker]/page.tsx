@@ -9,6 +9,8 @@ import { ChevronsLeftRight } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { companyData } from "@/lib/companyData";
 import { apiFetch } from "@/lib/apiFetch";
+import { API_BASE } from "@/lib/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 interface StockData {
   ticker: string;
@@ -37,7 +39,7 @@ export default function CompanyPage() {
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+  const { username: loggedInUser } = useAuth();
   const [priceHistory, setPriceHistory] = useState<{ date: string; close: number }[]>([]);
 
   const info = companyData[ticker];
@@ -46,7 +48,7 @@ export default function CompanyPage() {
     const fetchStock = async () => {
       try {
         const data = await apiFetch<{ stocks: Record<string, StockData> }>(
-          "https://kwatcha-api-production.up.railway.app/stocks"
+          `${API_BASE}/stocks`
         );
         setStock(data.stocks[ticker] || null);
       } catch (err) {
@@ -62,7 +64,7 @@ export default function CompanyPage() {
     const fetchHistory = async () => {
       try {
         const data = await apiFetch<{ history: { close: number; snapshot_at: string }[] }>(
-          `https://kwatcha-api-production.up.railway.app/history/${ticker}`
+          `${API_BASE}/history/${ticker}`
         );
         setPriceHistory(
           data.history.map((h) => ({
@@ -76,16 +78,6 @@ export default function CompanyPage() {
     };
     fetchHistory();
   }, [ticker]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("mse_user");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.loggedIn) setLoggedInUser(parsed.username);
-      } catch {}
-    }
-  }, []);
 
   if (loading) return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -142,7 +134,7 @@ export default function CompanyPage() {
     setOrderError(null);
     setOrderSuccess(null);
     try {
-      const res = await fetch("https://kwatcha-api-production.up.railway.app/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
