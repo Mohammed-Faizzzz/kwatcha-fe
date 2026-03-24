@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { companyData } from "@/lib/companyData";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface Holding { ticker: string; shares: number; avgCost: number; }
 interface Order { id: string; ticker: string; type: "buy"|"sell"; shares: number; price: number; status: "filled"|"pending"|"cancelled"; date: string; }
@@ -35,6 +36,7 @@ export default function PortfolioPage() {
   const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
   const [prices, setPrices] = useState<StockPrices>({});
   const [loadingPrices, setLoadingPrices] = useState(true);
+  const [priceError, setPriceError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"holdings"|"orders">("holdings");
 
   useEffect(() => {
@@ -49,14 +51,18 @@ export default function PortfolioPage() {
   }, []);
 
   useEffect(() => {
-    fetch("https://kwatcha-api-production.up.railway.app/stocks")
-      .then(r => r.json())
+    apiFetch<{ stocks: Record<string, { close: string | number }> }>(
+      "https://kwatcha-api-production.up.railway.app/stocks"
+    )
       .then(data => {
         const map: StockPrices = {};
-        Object.entries(data.stocks as Record<string, {close: string|number}>).forEach(([t, d]) => {
+        Object.entries(data.stocks).forEach(([t, d]) => {
           map[t] = { close: Number(d.close) };
         });
         setPrices(map);
+      })
+      .catch(err => {
+        setPriceError(err instanceof Error ? err.message : "Failed to load live prices.");
       })
       .finally(() => setLoadingPrices(false));
   }, []);
@@ -139,6 +145,16 @@ export default function PortfolioPage() {
             </div>
           </div>
         </div>
+
+        {/* Price error */}
+        {priceError && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/8 border border-red-500/15">
+            <svg className="w-4 h-4 text-red-400/70 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-red-400/70 text-xs leading-relaxed">{priceError} P&L figures may be inaccurate.</p>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-white/[0.03] border border-white/8 rounded-xl p-1 w-fit">

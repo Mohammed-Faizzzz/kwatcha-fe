@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { companyData } from "@/lib/companyData";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface StockData {
   open: string;
@@ -23,14 +24,14 @@ const SECTORS = ["All", ...Array.from(new Set(Object.values(companyData).map((c)
 export default function CompaniesPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState("All");
 
   useEffect(() => {
-    fetch("https://kwatcha-api-production.up.railway.app/stocks")
-      .then((r) => r.json())
-      .then((d: MarketResponse) => setStocks(d.stocks))
-      .catch(console.error);
+    apiFetch<MarketResponse>("https://kwatcha-api-production.up.railway.app/stocks")
+      .then((d) => setStocks(d.stocks))
+      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load stock data."));
   }, []);
 
   const companies = useMemo(() => {
@@ -70,6 +71,16 @@ export default function CompaniesPage() {
             All {Object.keys(companyData).length} companies currently listed on the MSE.
           </p>
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/8 border border-red-500/15 mb-8">
+            <svg className="w-4 h-4 text-red-400/70 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-red-400/70 text-xs leading-relaxed">{error}</p>
+          </div>
+        )}
 
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-4 mb-8">

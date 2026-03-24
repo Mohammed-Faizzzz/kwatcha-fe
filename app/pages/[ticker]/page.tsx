@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronsLeftRight } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { companyData } from "@/lib/companyData";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface StockData {
   ticker: string;
@@ -29,6 +30,7 @@ export default function CompanyPage() {
 
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("background");
   const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
   const [shares, setShares] = useState<string>("");
@@ -42,12 +44,12 @@ export default function CompanyPage() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const res = await fetch("https://kwatcha-api-production.up.railway.app/stocks");
-        const data = await res.json();
+        const data = await apiFetch<{ stocks: Record<string, StockData> }>(
+          "https://kwatcha-api-production.up.railway.app/stocks"
+        );
         setStock(data.stocks[ticker] || null);
       } catch (err) {
-        console.error(err);
-        setStock(null);
+        setFetchError(err instanceof Error ? err.message : "Failed to load stock data.");
       } finally {
         setLoading(false);
       }
@@ -73,6 +75,17 @@ export default function CompanyPage() {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
         Loading...
+      </div>
+    </div>
+  );
+
+  if (fetchError) return (
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="flex items-start gap-3 p-5 rounded-xl bg-red-500/8 border border-red-500/15 max-w-md w-full">
+        <svg className="w-4 h-4 text-red-400/70 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+        <p className="text-red-400/70 text-sm leading-relaxed">{fetchError}</p>
       </div>
     </div>
   );

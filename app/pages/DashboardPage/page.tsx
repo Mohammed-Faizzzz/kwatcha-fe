@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface StockData {
   open: string;
@@ -15,16 +16,18 @@ export default function DashboardPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await fetch("https://kwatcha-api-production.up.railway.app/stocks");
-        const data = await res.json();
+        const data = await apiFetch<{ stocks: Record<string, StockData> }>(
+          "https://kwatcha-api-production.up.railway.app/stocks"
+        );
         setStocks(data.stocks);
       } catch (err) {
-        console.error("Failed to fetch stocks:", err);
+        setError(err instanceof Error ? err.message : "Failed to load market data.");
       } finally {
         setLoading(false);
       }
@@ -116,6 +119,16 @@ export default function DashboardPage() {
           </h1>
           <p className="text-white/40 text-sm mt-2">Here's what's happening on the Malawi Stock Exchange today.</p>
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/8 border border-red-500/15 mb-8">
+            <svg className="w-4 h-4 text-red-400/70 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-red-400/70 text-xs leading-relaxed">{error}</p>
+          </div>
+        )}
 
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">

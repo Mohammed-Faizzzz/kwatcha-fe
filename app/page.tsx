@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface StockData {
   url: string;
@@ -53,20 +54,20 @@ export default function LandingPage() {
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [movers, setMovers] = useState<MoversResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [stocksRes, moversRes] = await Promise.all([
-          fetch("https://kwatcha-api-production.up.railway.app/stocks"),
-          fetch("https://kwatcha-api-production.up.railway.app/stocks/movers"),
+        setError(null);
+        const [stocksData, moversData] = await Promise.all([
+          apiFetch<MarketResponse>("https://kwatcha-api-production.up.railway.app/stocks"),
+          apiFetch<MoversResponse>("https://kwatcha-api-production.up.railway.app/stocks/movers"),
         ]);
-        const stocksData: MarketResponse = await stocksRes.json();
-        const moversData: MoversResponse = await moversRes.json();
         setStocks(stocksData.stocks);
         setMovers(moversData);
       } catch (err) {
-        console.error("Failed to fetch data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load market data.");
       } finally {
         setLoading(false);
       }
@@ -150,6 +151,14 @@ export default function LandingPage() {
 
       {/* ── Market Snapshot ── */}
       <section id="market" className="px-4 md:px-6 pb-20 max-w-7xl mx-auto">
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/8 border border-red-500/15 mb-8">
+            <svg className="w-4 h-4 text-red-400/70 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-red-400/70 text-xs leading-relaxed">{error}</p>
+          </div>
+        )}
         <div className="flex items-center gap-3 mb-8">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/20" />
           <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400/80 px-2">
