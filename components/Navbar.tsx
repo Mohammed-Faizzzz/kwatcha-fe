@@ -192,20 +192,6 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     @{loggedInUser}
                   </span>
                   <button
-                    onClick={() => router.push("/dashboard")}
-                    style={{
-                      fontSize: "15px",
-                      color: "rgba(255,255,255,0.75)",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "0.5px solid rgba(255,255,255,0.1)",
-                      padding: "9px 20px",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Dashboard
-                  </button>
-                  <button
                     onClick={handleLogout}
                     style={{
                       fontSize: "15px",

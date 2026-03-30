@@ -105,7 +105,7 @@ export default function PortfolioPage() {
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-1">
             {loggedInUser ? `@${loggedInUser}` : "Account"}
           </p>
-          <h1 className="text-4xl font-bold text-white font-playfair">
+          <h1 className="text-4xl font-bold text-white">
             My Portfolio
           </h1>
         </div>

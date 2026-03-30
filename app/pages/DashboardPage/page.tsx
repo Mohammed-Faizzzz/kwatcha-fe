@@ -8,13 +8,22 @@ import { API_BASE } from "@/lib/constants";
 import { getMarketStatus } from "@/lib/marketUtils";
 import { useAuth } from "@/hooks/useAuth";
 import type { StockData } from "@/types/market";
+import Navbar from "@/components/Navbar";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { username: loggedInUser, logout } = useAuth();
+  const { username: loggedInUser } = useAuth();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const tickerItems = stocks
+    ? Object.entries(stocks).map(([name, data]) => ({
+        symbol: name,
+        price: Number(data.close).toLocaleString(),
+        change: parseFloat((data.pct_change * 100).toFixed(2)),
+      }))
+    : [];
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -56,42 +65,17 @@ export default function DashboardPage() {
           "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
       }}
     >
-      {/* Header */}
-      <div className="border-b border-white/5 px-4 md:px-6 py-5 flex items-center justify-between">
-        <div className="text-xl font-bold text-white">MSE Trade</div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${marketStatus === "Open" ? "bg-green-400" : "bg-red-400"}`} />
-            <span className="text-white/40 text-xs">Market {marketStatus}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {loggedInUser && (
-              <span className="text-white/30 text-xs hidden md:block">@{loggedInUser}</span>
-            )}
-            <Button
-              onClick={() => router.push("/pages/Portfolio")}
-              className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
-            >
-              Portfolio
-            </Button>
-            <Button
-              onClick={() => { logout(); router.push("/"); }}
-              className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-4 py-1.5 rounded-lg transition-all"
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
+      <Navbar tickerItems={tickerItems} />
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-44 pb-12">
         {/* Welcome */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">Dashboard</p>
           <h1
-            className="text-3xl md:text-4xl font-bold text-white font-playfair"
+            className="text-3xl md:text-4xl font-bold text-white"
           >
-            Welcome back
+            Welcome back, {loggedInUser}
           </h1>
           <p className="text-white/40 text-sm mt-2">Here's what's happening on the Malawi Stock Exchange today.</p>
         </div>
