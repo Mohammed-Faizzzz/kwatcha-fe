@@ -329,7 +329,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                 display: "flex",
                 whiteSpace: "nowrap",
                 width: "max-content",
-                animation: "ticker 30s linear infinite",
+                animation: "ticker 45s linear infinite",
               }}
             >
               {[...tickerItems, ...tickerItems].map((item, i) => (
