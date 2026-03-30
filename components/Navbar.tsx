@@ -354,7 +354,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
             <div className="flex items-start justify-between mb-8">
               <div>
                 <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
-                  MSE Trade
+                  Msika Wa Kampani
                 </p>
                 <h2 className="text-2xl font-bold text-white">Welcome back</h2>
                 <p className="text-white/40 text-sm mt-1">Sign in to your trading account</p>

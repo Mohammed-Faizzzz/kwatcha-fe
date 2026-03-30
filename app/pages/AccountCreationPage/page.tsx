@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/constants";
@@ -31,6 +31,145 @@ const FILE_ACCEPTS: Record<FileKey, string> = {
   passportPhoto: ".jpg,.jpeg,.png",
   proofOfAddress: ".jpg,.jpeg,.png,.pdf",
   companyDocs: ".jpg,.jpeg,.png,.pdf",
+};
+
+interface FormCtx {
+  form: Record<string, string>;
+  update: (field: string, value: string) => void;
+  errors: Record<string, string>;
+}
+const FormContext = createContext<FormCtx>({ form: {}, update: () => {}, errors: {} });
+
+const formatSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="flex items-center gap-3 my-6">
+    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/30" />
+    <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400/80 px-2">{title}</span>
+    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-blue-500/30" />
+  </div>
+);
+
+const PasswordStrength = ({ password }: { password: string }) => {
+  const checks = [
+    { label: "8+ characters", pass: password.length >= 8 },
+    { label: "Uppercase", pass: /[A-Z]/.test(password) },
+    { label: "Number", pass: /[0-9]/.test(password) },
+    { label: "Special char", pass: /[^a-zA-Z0-9]/.test(password) },
+  ];
+  const score = checks.filter((c) => c.pass).length;
+  const barColors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
+  const scoreLabels = ["", "Weak", "Fair", "Good", "Strong"];
+  const scoreTextColors = ["", "text-red-400", "text-orange-400", "text-yellow-400", "text-green-400"];
+  if (!password) return null;
+  return (
+    <div className="mt-2">
+      <div className="flex gap-1 mb-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= score ? barColors[score] : "bg-white/10"}`} />
+        ))}
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {checks.map((c) => (
+            <span key={c.label} className={`text-xs flex items-center gap-1 ${c.pass ? "text-green-400/70" : "text-white/25"}`}>
+              {c.pass ? "✓" : "○"} {c.label}
+            </span>
+          ))}
+        </div>
+        {score > 0 && <span className={`text-xs font-semibold shrink-0 ml-2 ${scoreTextColors[score]}`}>{scoreLabels[score]}</span>}
+      </div>
+    </div>
+  );
+};
+
+const ErrorMsg = ({ field }: { field: string }) => {
+  const { errors } = useContext(FormContext);
+  return errors[field] ? (
+    <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+      <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+      {errors[field]}
+    </p>
+  ) : null;
+};
+
+const InputField = ({
+  label, field, type = "text", placeholder = "", required = false,
+}: { label: string; field: string; type?: string; placeholder?: string; required?: boolean }) => {
+  const { form, update, errors } = useContext(FormContext);
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
+        {label}{required && <span className="text-red-400 ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        value={form[field] ?? ""}
+        onChange={(e) => update(field, e.target.value)}
+        placeholder={placeholder}
+        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${
+          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
+        }`}
+      />
+      <ErrorMsg field={field} />
+    </div>
+  );
+};
+
+const SelectField = ({
+  label, field, options, required = false,
+}: { label: string; field: string; options: string[]; required?: boolean }) => {
+  const { form, update, errors } = useContext(FormContext);
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
+        {label}{required && <span className="text-red-400 ml-1">*</span>}
+      </label>
+      <select
+        value={form[field] ?? ""}
+        onChange={(e) => update(field, e.target.value)}
+        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none transition-all appearance-none ${
+          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
+        }`}
+      >
+        <option value="" className="bg-gray-900">Select...</option>
+        {options.map((o) => <option key={o} value={o} className="bg-gray-900">{o}</option>)}
+      </select>
+      <ErrorMsg field={field} />
+    </div>
+  );
+};
+
+const GenderToggle = ({ field, errorField }: { field: string; errorField: string }) => {
+  const { form, update, errors } = useContext(FormContext);
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
+        Gender <span className="text-red-400">*</span>
+      </label>
+      <div className="flex gap-3">
+        {["Male", "Female"].map((g) => (
+          <button key={g} type="button" onClick={() => update(field, g)}
+            className={`flex-1 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+              form[field] === g
+                ? "border-blue-500/60 bg-blue-500/15 text-blue-300"
+                : errors[errorField]
+                ? "border-red-500/40 bg-white/3 text-white/40"
+                : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"
+            }`}>
+            {g}
+          </button>
+        ))}
+      </div>
+      <ErrorMsg field={errorField} />
+    </div>
+  );
 };
 
 export default function AccountCreationPage() {
@@ -101,7 +240,15 @@ export default function AccountCreationPage() {
 
   const update = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    if (field === "dob" || field === "jointDob") {
+      if (value && value > new Date().toISOString().slice(0, 10)) {
+        setErrors((prev) => ({ ...prev, [field]: "Date of birth cannot be in the future" }));
+      } else {
+        setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+      }
+    } else if (errors[field]) {
+      setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    }
   };
 
   const clearError = (field: string) =>
@@ -117,6 +264,7 @@ export default function AccountCreationPage() {
         if (!form.idType) newErrors.idType = "Please select an ID type";
         if (!form.idNumber.trim()) newErrors.idNumber = "ID number is required";
         if (!form.dob) newErrors.dob = "Date of birth is required";
+        else if (form.dob > new Date().toISOString().slice(0, 10)) newErrors.dob = "Date of birth cannot be in the future";
         if (!form.investorType) newErrors.investorType = "Please select investor type";
       }
       if (applicantType === "joint") {
@@ -125,6 +273,7 @@ export default function AccountCreationPage() {
         if (!form.jointIdType) newErrors.jointIdType = "Please select an ID type";
         if (!form.jointIdNumber.trim()) newErrors.jointIdNumber = "Joint ID number is required";
         if (!form.jointDob) newErrors.jointDob = "Date of birth is required";
+        else if (form.jointDob > new Date().toISOString().slice(0, 10)) newErrors.jointDob = "Date of birth cannot be in the future";
         if (!form.jointInvestorType) newErrors.jointInvestorType = "Please select investor type";
       }
       if (applicantType === "company") {
@@ -258,86 +407,6 @@ export default function AccountCreationPage() {
     if (input) input.value = "";
   };
 
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const ErrorMsg = ({ field }: { field: string }) =>
-    errors[field] ? (
-      <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-        <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-        </svg>
-        {errors[field]}
-      </p>
-    ) : null;
-
-  const InputField = ({
-    label, field, type = "text", placeholder = "", required = false,
-  }: { label: string; field: string; type?: string; placeholder?: string; required?: boolean }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
-        {label}{required && <span className="text-red-400 ml-1">*</span>}
-      </label>
-      <input
-        type={type}
-        value={(form as Record<string, string>)[field]}
-        onChange={(e) => update(field, e.target.value)}
-        placeholder={placeholder}
-        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${
-          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
-        }`}
-      />
-      <ErrorMsg field={field} />
-    </div>
-  );
-
-  const SelectField = ({
-    label, field, options, required = false,
-  }: { label: string; field: string; options: string[]; required?: boolean }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
-        {label}{required && <span className="text-red-400 ml-1">*</span>}
-      </label>
-      <select
-        value={(form as Record<string, string>)[field]}
-        onChange={(e) => update(field, e.target.value)}
-        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none transition-all appearance-none ${
-          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
-        }`}
-      >
-        <option value="" className="bg-gray-900">Select...</option>
-        {options.map((o) => <option key={o} value={o} className="bg-gray-900">{o}</option>)}
-      </select>
-      <ErrorMsg field={field} />
-    </div>
-  );
-
-  const GenderToggle = ({ field, errorField }: { field: string; errorField: string }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">
-        Gender <span className="text-red-400">*</span>
-      </label>
-      <div className="flex gap-3">
-        {["Male", "Female"].map((g) => (
-          <button key={g} type="button" onClick={() => update(field, g)}
-            className={`flex-1 py-2.5 rounded-lg border text-sm font-medium transition-all ${
-              (form as Record<string, string>)[field] === g
-                ? "border-blue-500/60 bg-blue-500/15 text-blue-300"
-                : errors[errorField]
-                ? "border-red-500/40 bg-white/3 text-white/40"
-                : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"
-            }`}>
-            {g}
-          </button>
-        ))}
-      </div>
-      <ErrorMsg field={errorField} />
-    </div>
-  );
-
   // FileUploadCard no longer owns the <input> — it just triggers the top-level ref
   const FileUploadCard = ({
     label, docKey, hint, required = false,
@@ -384,47 +453,6 @@ export default function AccountCreationPage() {
     );
   };
 
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="flex items-center gap-3 my-6">
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/30" />
-      <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400/80 px-2">{title}</span>
-      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-blue-500/30" />
-    </div>
-  );
-
-  const PasswordStrength = ({ password }: { password: string }) => {
-    const checks = [
-      { label: "8+ characters", pass: password.length >= 8 },
-      { label: "Uppercase", pass: /[A-Z]/.test(password) },
-      { label: "Number", pass: /[0-9]/.test(password) },
-      { label: "Special char", pass: /[^a-zA-Z0-9]/.test(password) },
-    ];
-    const score = checks.filter((c) => c.pass).length;
-    const barColors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
-    const scoreLabels = ["", "Weak", "Fair", "Good", "Strong"];
-    const scoreTextColors = ["", "text-red-400", "text-orange-400", "text-yellow-400", "text-green-400"];
-    if (!password) return null;
-    return (
-      <div className="mt-2">
-        <div className="flex gap-1 mb-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= score ? barColors[score] : "bg-white/10"}`} />
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
-            {checks.map((c) => (
-              <span key={c.label} className={`text-xs flex items-center gap-1 ${c.pass ? "text-green-400/70" : "text-white/25"}`}>
-                {c.pass ? "✓" : "○"} {c.label}
-              </span>
-            ))}
-          </div>
-          {score > 0 && <span className={`text-xs font-semibold shrink-0 ml-2 ${scoreTextColors[score]}`}>{scoreLabels[score]}</span>}
-        </div>
-      </div>
-    );
-  };
-
   if (submitted) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-4" style={{ backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(29,78,216,0.1) 0%, transparent 60%)" }}>
@@ -434,17 +462,17 @@ export default function AccountCreationPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3 font-playfair">Application Submitted</h2>
+          <h2 className="text-3xl font-bold text-white mb-3">Application Submitted</h2>
           <p className="text-white/50 text-sm leading-relaxed mb-2">Your CSD Securities Account application has been received.</p>
           <p className="text-white/40 text-sm leading-relaxed mb-8">
             Your trading account username is <span className="text-blue-300 font-semibold">{form.username}</span>. You will be notified via <span className="text-blue-300">{form.email}</span> once your account is approved.
           </p>
           <Button
             onClick={() => router.push("/")}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2"
+            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2 mx-auto"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            Back to Menu
+            Back to Home
           </Button>
         </div>
       </div>
@@ -452,6 +480,7 @@ export default function AccountCreationPage() {
   }
 
   return (
+    <FormContext.Provider value={{ form: form as Record<string, string>, update, errors }}>
     <div className="min-h-screen bg-black text-white" style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)" }}>
 
       {/* Hidden file inputs — live at the top level so refs are always stable */}
@@ -468,7 +497,7 @@ export default function AccountCreationPage() {
 
       {/* Header */}
       <div className="border-b border-white/5 px-4 md:px-6 py-5 flex items-center justify-between">
-        <a href="/" className="text-xl font-bold text-white">MSE Trade</a>
+        <a href="/" className="text-xl font-bold text-white">Msika Wa Kampani</a>
         <div className="flex items-center gap-2 text-xs text-white/40">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -481,7 +510,7 @@ export default function AccountCreationPage() {
         {/* Title */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">CSD Form F1</p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight font-playfair">
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
             Securities Account<br /><span className="text-white/40">Opening Form</span>
           </h1>
           <p className="text-white/40 text-sm mt-3">Central Securities Depository — Reserve Bank of Malawi</p>
@@ -842,5 +871,6 @@ export default function AccountCreationPage() {
         <p className="text-center text-xs text-white/20 mt-8">CSD Form F1 · Reserve Bank of Malawi · Administered by XYZ Capital Pte Ltd</p>
       </div>
     </div>
+    </FormContext.Provider>
   );
 }
