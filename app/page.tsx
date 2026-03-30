@@ -98,11 +98,6 @@ export default function LandingPage() {
         {/* Floating stat pills */}
         <div className="flex flex-wrap gap-3 mt-10">
           <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
-            <span className="w-[5px] h-[5px] rounded-full bg-green-400 animate-pulse" />
-            <span className="text-white/28 text-[11px]">Market</span>
-            <span className="text-white/72 text-[11px] font-medium">{marketStatus}</span>
-          </div>
-          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
             <span className="text-white/28 text-[11px]">Listed</span>
             <span className="text-white/72 text-[11px] font-medium">
               {stocks ? `${Object.keys(stocks).length} companies` : "—"}

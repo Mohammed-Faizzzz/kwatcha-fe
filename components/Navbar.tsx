@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/constants";
+import { getMarketStatus } from "@/lib/marketUtils";
 
 interface NavbarProps {
   tickerItems?: { symbol: string; price: string; change: number }[];
@@ -22,6 +23,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
   const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const marketStatus = getMarketStatus();
 
   useEffect(() => {
     const stored = localStorage.getItem("mse_user");
@@ -145,31 +147,27 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
             )}
           </div>
 
-          {/* Right side — hidden on mobile */}
-          <div className="hidden md:flex items-center" style={{ gap: "10px" }}>
-            {/* Market open pill */}
+          {/* Right side */}
+          <div className="flex items-center" style={{ gap: "10px" }}>
+            {/* Market status pill — always visible */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                border: "0.5px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.03)",
+                border: `0.5px solid ${marketStatus === "Open" ? "rgba(34,197,94,0.25)" : "rgba(239,68,68,0.2)"}`,
+                background: marketStatus === "Open" ? "rgba(34,197,94,0.06)" : "rgba(239,68,68,0.06)",
                 borderRadius: "999px",
-                padding: "6px 14px",
+                padding: "6px 12px",
               }}
             >
               <span style={{ position: "relative", display: "inline-flex", width: "7px", height: "7px" }}>
-                <span
-                  className="animate-ping"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: "50%",
-                    background: "#22c55e",
-                    opacity: 0.4,
-                  }}
-                />
+                {marketStatus === "Open" && (
+                  <span
+                    className="animate-ping"
+                    style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.4 }}
+                  />
+                )}
                 <span
                   style={{
                     position: "relative",
@@ -177,89 +175,94 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     width: "7px",
                     height: "7px",
                     borderRadius: "50%",
-                    background: "#22c55e",
+                    background: marketStatus === "Open" ? "#22c55e" : "rgba(239,68,68,0.6)",
                   }}
                 />
               </span>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#4ade80" }}>Open</span>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: marketStatus === "Open" ? "#4ade80" : "rgba(239,68,68,0.7)" }}>
+                {marketStatus}
+              </span>
             </div>
 
-            {loggedInUser ? (
-              <>
-                <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.4)" }}>
-                  @{loggedInUser}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 500,
-                    color: "#fff",
-                    background: "rgb(220,38,38)",
-                    border: "none",
-                    padding: "9px 20px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => { setShowLogin(true); setError(null); }}
-                  style={{
-                    fontSize: "15px",
-                    color: "rgba(255,255,255,0.7)",
-                    background: "rgba(255,255,255,0.05)",
-                    border: "0.5px solid rgba(255,255,255,0.1)",
-                    padding: "9px 20px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.09)";
-                    e.currentTarget.style.color = "#fff";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                    e.currentTarget.style.color = "rgba(255,255,255,0.7)";
-                  }}
-                >
-                  Log in
-                </button>
-                <button
-                  onClick={() => router.push("/pages/AccountCreationPage")}
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 500,
-                    color: "#fff",
-                    background: "rgb(37,99,235)",
-                    border: "none",
-                    padding: "9px 20px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgb(59,130,246)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgb(37,99,235)")}
-                >
-                  Get started
-                </button>
-              </>
-            )}
-          </div>
+            {/* Auth buttons — desktop only */}
+            <div className="hidden md:flex items-center" style={{ gap: "10px" }}>
+              {loggedInUser ? (
+                <>
+                  <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.4)" }}>
+                    @{loggedInUser}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      color: "#fff",
+                      background: "rgb(220,38,38)",
+                      border: "none",
+                      padding: "9px 20px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { setShowLogin(true); setError(null); }}
+                    style={{
+                      fontSize: "15px",
+                      color: "rgba(255,255,255,0.7)",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "0.5px solid rgba(255,255,255,0.1)",
+                      padding: "9px 20px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.09)";
+                      e.currentTarget.style.color = "#fff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+                    }}
+                  >
+                    Log in
+                  </button>
+                  <button
+                    onClick={() => router.push("/pages/AccountCreationPage")}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      color: "#fff",
+                      background: "rgb(37,99,235)",
+                      border: "none",
+                      padding: "9px 20px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgb(59,130,246)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgb(37,99,235)")}
+                  >
+                    Get started
+                  </button>
+                </>
+              )}
+            </div>
 
-          {/* Hamburger button — mobile only */}
-          <button
-            className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+            {/* Hamburger — mobile only */}
+            <button
+              className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </nav>
 
         {/* ── Mobile dropdown menu ── */}

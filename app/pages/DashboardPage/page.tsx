@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiFetch";
 import { API_BASE } from "@/lib/constants";
-import { getMarketStatus } from "@/lib/marketUtils";
 import { useAuth } from "@/hooks/useAuth";
 import type { StockData } from "@/types/market";
 import Navbar from "@/components/Navbar";
@@ -40,8 +39,6 @@ export default function DashboardPage() {
     };
     fetchStocks();
   }, []);
-
-  const marketStatus = getMarketStatus();
 
   const gainers = stocks
     ? Object.entries(stocks)
@@ -91,9 +88,8 @@ export default function DashboardPage() {
         )}
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-3 gap-4 mb-10">
           {[
-            { label: "Market Status", value: marketStatus, accent: marketStatus === "Open" ? "text-green-400" : "text-red-400" },
             { label: "Listed Stocks", value: stocks ? Object.keys(stocks).length.toString() : "—", accent: "text-white" },
             { label: "Gainers", value: gainers.length.toString(), accent: "text-green-400" },
             { label: "Losers", value: losers.length.toString(), accent: "text-red-400" },

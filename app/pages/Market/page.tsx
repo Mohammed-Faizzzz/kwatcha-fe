@@ -15,7 +15,6 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
 import { API_BASE } from "@/lib/constants";
-import { getMarketStatus } from "@/lib/marketUtils";
 import type { StockData, MarketResponse, MoversResponse } from "@/types/market";
 
 type SortKey = "name" | "close" | "open" | "change" | "pct_change" | "volume" | "turnover";
@@ -53,8 +52,6 @@ export default function MarketPage() {
     const interval = setInterval(fetchData, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const marketStatus = getMarketStatus();
 
   const tickerItems = stocks
     ? Object.entries(stocks).map(([name, data]) => ({
@@ -132,25 +129,9 @@ export default function MarketPage() {
               Msika wa Kampani
             </p>
           </div>
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-white">
-              Market Overview
-            </h1>
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  marketStatus === "Open" ? "bg-green-400 animate-pulse" : "bg-red-400/60"
-                }`}
-              />
-              <span
-                className={`text-sm font-semibold ${
-                  marketStatus === "Open" ? "text-green-400" : "text-red-400/70"
-                }`}
-              >
-                Market {marketStatus}
-              </span>
-            </div>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
+            Market Overview
+          </h1>
           <p className="text-white/40 mt-3 text-sm">
             Live prices and performance data for all companies listed on the MSE.
           </p>
