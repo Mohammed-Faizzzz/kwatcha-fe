@@ -176,36 +176,163 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Top Movers */}
+          {/* Most Active */}
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
             <div className="mb-4">
               <Activity className="text-blue-400/60" size={20} />
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Top Movers</p>
-            <div className="space-y-2">
-              {movers?.top_gainers[0] && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={12} className="text-green-400/70" />
-                    <span className="text-white/70 text-sm font-semibold">{movers.top_gainers[0].ticker}</span>
-                  </div>
-                  <span className="text-green-400 text-xs font-bold">
-                    +{movers.top_gainers[0].change.toFixed(2)}%
+            <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Most Active</p>
+            <div className="space-y-3">
+              {movers?.highest_volume.slice(0, 3).map((s) => (
+                <div
+                  key={s.ticker}
+                  className="flex items-center justify-between cursor-pointer group"
+                  onClick={() => router.push(`/pages/${s.ticker}`)}
+                >
+                  <span className="text-white/70 text-sm font-semibold group-hover:text-white transition-colors">
+                    {s.ticker}
+                  </span>
+                  <span className="text-white/35 text-xs">
+                    {Number(s.volume).toLocaleString()} sh
                   </span>
                 </div>
-              )}
-              {movers?.top_losers[0] && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingDown size={12} className="text-red-400/70" />
-                    <span className="text-white/70 text-sm font-semibold">{movers.top_losers[0].ticker}</span>
-                  </div>
-                  <span className="text-red-400 text-xs font-bold">
-                    {movers.top_losers[0].change.toFixed(2)}%
-                  </span>
-                </div>
-              )}
+              ))}
               {!movers && <p className="text-white/20 text-xs">Loading...</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Top Gainers & Losers ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {/* Top Gainers */}
+          <div
+            className="rounded-2xl p-6 backdrop-blur-sm"
+            style={{
+              background: "linear-gradient(135deg, rgba(34,197,94,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+              border: "1px solid rgba(34,197,94,0.12)",
+              boxShadow: "0 0 40px -12px rgba(34,197,94,0.08)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-green-500/15 border border-green-500/20 flex items-center justify-center">
+                  <TrendingUp size={12} className="text-green-400" />
+                </div>
+                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Top Gainers</p>
+              </div>
+              <button
+                onClick={() => router.push("/pages/Market")}
+                className="text-[10px] text-white/25 hover:text-white/50 transition-colors font-medium"
+              >
+                View all →
+              </button>
+            </div>
+            <div className="space-y-2">
+              {movers?.top_gainers.slice(0, 3).map((g, i) => (
+                <div
+                  key={g.ticker}
+                  onClick={() => router.push(`/pages/${g.ticker}`)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 hover:bg-green-500/[0.06] group"
+                >
+                  <span
+                    className="text-[10px] font-black w-5 text-center shrink-0"
+                    style={{
+                      color: i === 0 ? "rgba(250,204,21,0.7)" : i === 1 ? "rgba(156,163,175,0.6)" : "rgba(180,120,60,0.6)",
+                    }}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
+                      {g.ticker}
+                    </p>
+                    {g.close != null && (
+                      <p className="text-[11px] text-white/25 mt-0.5">
+                        MK {Number(g.close).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-green-500/12 border border-green-500/20 rounded-lg px-2.5 py-1 shrink-0">
+                    <span className="text-green-400 text-[11px] font-black">▲ +{g.change.toFixed(2)}%</span>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-10 rounded-xl bg-white/[0.03] animate-pulse" />
+                  ))}
+                </div>
+              )}
+              {!loading && !movers && (
+                <p className="text-white/20 text-xs text-center py-4">No data available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Top Losers */}
+          <div
+            className="rounded-2xl p-6 backdrop-blur-sm"
+            style={{
+              background: "linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+              border: "1px solid rgba(239,68,68,0.1)",
+              boxShadow: "0 0 40px -12px rgba(239,68,68,0.07)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-red-500/12 border border-red-500/18 flex items-center justify-center">
+                  <TrendingDown size={12} className="text-red-400" />
+                </div>
+                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Top Losers</p>
+              </div>
+              <button
+                onClick={() => router.push("/pages/Market")}
+                className="text-[10px] text-white/25 hover:text-white/50 transition-colors font-medium"
+              >
+                View all →
+              </button>
+            </div>
+            <div className="space-y-2">
+              {movers?.top_losers.slice(0, 3).map((l, i) => (
+                <div
+                  key={l.ticker}
+                  onClick={() => router.push(`/pages/${l.ticker}`)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 hover:bg-red-500/[0.06] group"
+                >
+                  <span
+                    className="text-[10px] font-black w-5 text-center shrink-0"
+                    style={{
+                      color: i === 0 ? "rgba(250,204,21,0.7)" : i === 1 ? "rgba(156,163,175,0.6)" : "rgba(180,120,60,0.6)",
+                    }}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
+                      {l.ticker}
+                    </p>
+                    {l.close != null && (
+                      <p className="text-[11px] text-white/25 mt-0.5">
+                        MK {Number(l.close).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/18 rounded-lg px-2.5 py-1 shrink-0">
+                    <span className="text-red-400 text-[11px] font-black">▼ {l.change.toFixed(2)}%</span>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-10 rounded-xl bg-white/[0.03] animate-pulse" />
+                  ))}
+                </div>
+              )}
+              {!loading && !movers && (
+                <p className="text-white/20 text-xs text-center py-4">No data available</p>
+              )}
             </div>
           </div>
         </div>
