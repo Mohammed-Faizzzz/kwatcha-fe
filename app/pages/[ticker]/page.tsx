@@ -42,6 +42,7 @@ export default function CompanyPage() {
   const [orderError, setOrderError] = useState<string | null>(null);
   const { username: loggedInUser } = useAuth();
   const [priceHistory, setPriceHistory] = useState<{ date: string; close: number }[]>([]);
+  const [tickerItems, setTickerItems] = useState<{ symbol: string; price: string; change: number }[]>([]);
 
   const info = companyData[ticker];
 
@@ -52,6 +53,13 @@ export default function CompanyPage() {
           `${API_BASE}/stocks`
         );
         setStock(data.stocks[ticker] || null);
+        setTickerItems(
+          Object.entries(data.stocks).map(([name, d]) => ({
+            symbol: name,
+            price: Number(d.close).toLocaleString(),
+            change: parseFloat(((d.pct_change ?? 0) * 100).toFixed(2)),
+          }))
+        );
         console.log(stock);
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to load stock data.");
@@ -172,9 +180,9 @@ export default function CompanyPage() {
           "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.07) 0%, transparent 60%)",
       }}
     >
-      <Navbar />
+      <Navbar tickerItems={tickerItems} />
 
-      <section className="px-4 md:px-6 pt-28 pb-12 max-w-7xl mx-auto space-y-8">
+      <section className="px-4 md:px-6 pt-44 pb-12 max-w-7xl mx-auto space-y-8">
 
         {/* Header */}
         <div>

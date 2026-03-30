@@ -56,6 +56,14 @@ export default function MarketPage() {
 
   const marketStatus = getMarketStatus();
 
+  const tickerItems = stocks
+    ? Object.entries(stocks).map(([name, data]) => ({
+        symbol: name,
+        price: Number(data.close).toLocaleString(),
+        change: parseFloat((data.pct_change * 100).toFixed(2)),
+      }))
+    : [];
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -113,14 +121,17 @@ export default function MarketPage() {
           "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
       }}
     >
-      <Navbar />
+      <Navbar tickerItems={tickerItems} />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-28">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-44 pb-28">
         {/* Page header */}
         <div className="mb-10">
-          <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-3">
-            Malawi Stock Exchange
-          </p>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-5 h-px bg-blue-500/40" />
+            <p className="text-[10px] font-bold tracking-[0.2em] text-blue-400/70 uppercase">
+              Msika wa Kampani
+            </p>
+          </div>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h1 className="text-4xl md:text-5xl font-bold text-white">
               Market Overview

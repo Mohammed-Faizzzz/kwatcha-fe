@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 interface Holding { ticker: string; shares: number; avgCost: number; }
 interface Order { id: string; ticker: string; type: "buy"|"sell"; shares: number; price: number; status: "filled"|"pending"|"cancelled"; date: string; }
 interface StockPrices { [ticker: string]: { close: number }; }
+interface RawStock { close: string | number; pct_change?: number; }
 
 const MOCK_HOLDINGS: Holding[] = [
   { ticker: "AIRTEL", shares: 500,  avgCost: 215.00  },
@@ -40,13 +41,14 @@ export default function PortfolioPage() {
   const [loadingPrices, setLoadingPrices] = useState(true);
   const [priceError, setPriceError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"holdings"|"orders">("holdings");
+  const [tickerItems, setTickerItems] = useState<{ symbol: string; price: string; change: number }[]>([]);
 
   useEffect(() => {
     if (authLoaded && !loggedInUser) router.push("/");
   }, [authLoaded, loggedInUser, router]);
 
   useEffect(() => {
-    apiFetch<{ stocks: Record<string, { close: string | number }> }>(
+    apiFetch<{ stocks: Record<string, RawStock> }>(
       `${API_BASE}/stocks`
     )
       .then(data => {
@@ -55,6 +57,13 @@ export default function PortfolioPage() {
           map[t] = { close: Number(d.close) };
         });
         setPrices(map);
+        setTickerItems(
+          Object.entries(data.stocks).map(([name, d]) => ({
+            symbol: name,
+            price: Number(d.close).toLocaleString(),
+            change: parseFloat(((d.pct_change ?? 0) * 100).toFixed(2)),
+          }))
+        );
       })
       .catch(err => {
         setPriceError(err instanceof Error ? err.message : "Failed to load live prices.");
@@ -89,8 +98,8 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen bg-black text-white pb-16"
       style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.07) 0%, transparent 60%)" }}>
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-12 space-y-8">
+      <Navbar tickerItems={tickerItems} />
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-44 pb-12 space-y-8">
 
         <div>
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-1">

@@ -41,6 +41,14 @@ export default function LandingPage() {
 
   const marketStatus = getMarketStatus();
 
+  const tickerItems = stocks
+  ? Object.entries(stocks).map(([name, data]) => ({
+      symbol: name,
+      price: Number(data.close).toLocaleString(),
+      change: parseFloat((data.pct_change * 100).toFixed(2)),
+    }))
+  : []
+
   return (
     <div
       className="min-h-screen bg-black text-white"
@@ -49,21 +57,25 @@ export default function LandingPage() {
           "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
       }}
     >
-      <Navbar />
+      <Navbar tickerItems={tickerItems} />
 
       {/* ── Hero ── */}
-      <section className="px-4 md:px-6 pt-32 pb-24 max-w-7xl mx-auto">
+      <section className="px-4 md:px-6 pt-44 pb-24 max-w-7xl mx-auto">
         <div className="max-w-3xl">
-          <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-4">
-            Malawi Stock Exchange
-          </p>
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.1] mb-6">
-            Invest in Malawi's
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-5 h-px bg-blue-500/40" />
+            <p className="text-[10px] font-bold tracking-[0.2em] text-blue-400/70 uppercase">
+              Msika wa Kampani
+            </p>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.08] mb-5">
+            Malawi is growing.
             <br />
-            <span className="text-white/40">Stock Market</span>
+            <span className="text-white/28 font-semibold">Invest in it.</span>
           </h1>
-          <p className="text-white/50 text-lg max-w-xl leading-relaxed mb-10">
-            Track prices, analyze companies, and understand the Malawi Stock Exchange — all in one clean, modern platform.
+          <p className="text-white/45 text-[15px] max-w-md leading-relaxed mb-10">
+            The Malawi Stock Exchange, finally in your hands.{" "}
+            <span className="text-white/70 font-medium">Own a piece of home.</span>
           </p>
           <div className="flex flex-wrap gap-4">
             <Button
@@ -84,20 +96,22 @@ export default function LandingPage() {
         </div>
 
         {/* Floating stat pills */}
-        <div className="flex flex-wrap gap-3 mt-12">
-          {[
-            { label: "Exchange", value: "MSE" },
-            { label: "Currency", value: "MWK" },
-            { label: "Timezone", value: "UTC+2" },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 bg-white/[0.04] border border-white/8 rounded-full px-4 py-1.5"
-            >
-              <span className="text-white/30 text-xs">{label}</span>
-              <span className="text-white/70 text-xs font-semibold">{value}</span>
-            </div>
-          ))}
+        <div className="flex flex-wrap gap-3 mt-10">
+          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
+            <span className="w-[5px] h-[5px] rounded-full bg-green-400 animate-pulse" />
+            <span className="text-white/28 text-[11px]">Market</span>
+            <span className="text-white/72 text-[11px] font-medium">{marketStatus}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
+            <span className="text-white/28 text-[11px]">Listed</span>
+            <span className="text-white/72 text-[11px] font-medium">
+              {stocks ? `${Object.keys(stocks).length} companies` : "—"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
+            <span className="text-white/28 text-[11px]">Currency</span>
+            <span className="text-white/72 text-[11px] font-medium">MWK</span>
+          </div>
         </div>
       </section>
 
