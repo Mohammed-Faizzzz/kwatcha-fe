@@ -60,7 +60,7 @@ export default function LandingPage() {
       <Navbar tickerItems={tickerItems} />
 
       {/* ── Hero ── */}
-      <section className="px-4 md:px-6 pt-44 pb-24 max-w-7xl mx-auto">
+      <section className="px-4 md:px-6 pt-36 md:pt-44 pb-24 max-w-7xl mx-auto">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-5 h-px bg-blue-500/40" />
@@ -68,7 +68,7 @@ export default function LandingPage() {
               Msika wa Kampani
             </p>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-[1.08] mb-5">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-5">
             Malawi is growing.
             <br />
             <span className="text-white/28 font-semibold">Invest in it.</span>
