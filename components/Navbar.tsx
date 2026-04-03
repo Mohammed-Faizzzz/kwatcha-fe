@@ -350,7 +350,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                   <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
                     {item.symbol}
                   </span>
-                  MK {item.price}
+                  MWK {item.price}
                   <span
                     style={{
                       color:
