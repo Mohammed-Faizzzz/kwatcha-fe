@@ -4,33 +4,173 @@
   --font-playfair: var(--font-playfair);
 }
 
-:root {
-  --background: #000000;
-  --foreground: #e5e7eb;
+/* ── Theme-aware color tokens (generate bg-t-*, text-t-*, border-t-* utilities) ── */
+@theme inline {
+  /* Backgrounds */
+  --color-t-bg:      var(--t-bg);
+  --color-t-card:    var(--t-card);
+  --color-t-card2:   var(--t-card2);
+  --color-t-input:   var(--t-input);
+  --color-t-hover:   var(--t-hover);
+  --color-t-hover2:  var(--t-hover2);
+  /* Borders */
+  --color-t-line:    var(--t-line);
+  --color-t-linef:   var(--t-linef);
+  --color-t-linei:   var(--t-linei);
+  /* Foreground / text */
+  --color-t-fg:      var(--t-fg);
+  --color-t-fg80:    var(--t-fg80);
+  --color-t-fg70:    var(--t-fg70);
+  --color-t-fg60:    var(--t-fg60);
+  --color-t-fg50:    var(--t-fg50);
+  --color-t-fg45:    var(--t-fg45);
+  --color-t-fg40:    var(--t-fg40);
+  --color-t-fg35:    var(--t-fg35);
+  --color-t-fg30:    var(--t-fg30);
+  --color-t-fg28:    var(--t-fg28);
+  --color-t-fg25:    var(--t-fg25);
+  --color-t-fg20:    var(--t-fg20);
+  --color-t-fg15:    var(--t-fg15);
 }
 
+/* ── Dark defaults ── */
+:root {
+  /* Backgrounds */
+  --t-bg:      #000000;
+  --t-card:    rgba(255, 255, 255, 0.03);
+  --t-card2:   rgba(255, 255, 255, 0.02);
+  --t-input:   rgba(255, 255, 255, 0.05);
+  --t-hover:   rgba(255, 255, 255, 0.05);
+  --t-hover2:  rgba(255, 255, 255, 0.02);
+  /* Borders */
+  --t-line:    rgba(255, 255, 255, 0.08);
+  --t-linef:   rgba(255, 255, 255, 0.05);
+  --t-linei:   rgba(255, 255, 255, 0.10);
+  /* Text */
+  --t-fg:      #ffffff;
+  --t-fg80:    rgba(255, 255, 255, 0.80);
+  --t-fg70:    rgba(255, 255, 255, 0.70);
+  --t-fg60:    rgba(255, 255, 255, 0.60);
+  --t-fg50:    rgba(255, 255, 255, 0.50);
+  --t-fg45:    rgba(255, 255, 255, 0.45);
+  --t-fg40:    rgba(255, 255, 255, 0.40);
+  --t-fg35:    rgba(255, 255, 255, 0.35);
+  --t-fg30:    rgba(255, 255, 255, 0.30);
+  --t-fg28:    rgba(255, 255, 255, 0.28);
+  --t-fg25:    rgba(255, 255, 255, 0.25);
+  --t-fg20:    rgba(255, 255, 255, 0.20);
+  --t-fg15:    rgba(255, 255, 255, 0.15);
+  /* Navbar / surface-specific */
+  --t-nav-bg:         rgba(6, 10, 16, 0.92);
+  --t-nav-mobile-bg:  rgba(6, 10, 16, 0.98);
+  --t-ticker-bg:      rgba(6, 10, 16, 0.97);
+  --t-ticker-border:  rgba(59, 130, 246, 0.12);
+  --t-ticker-text:    rgba(255, 255, 255, 0.35);
+  --t-ticker-sym:     rgba(255, 255, 255, 0.70);
+  --t-nav-link:       rgba(255, 255, 255, 0.45);
+  --t-nav-link-h:     rgba(255, 255, 255, 0.95);
+  --t-nav-ul:         rgba(99, 155, 255, 0.70);
+  --t-nav-border:     rgba(255, 255, 255, 0.08);
+  /* Modal */
+  --t-modal-bg:       #000000;
+  --t-backdrop:       rgba(0, 0, 0, 0.75);
+  /* Chart */
+  --t-chart-tick:     rgba(255, 255, 255, 0.20);
+  --t-chart-tip:      #111111;
+  --t-chart-tip-b:    rgba(255, 255, 255, 0.10);
+  --t-chart-label:    rgba(255, 255, 255, 0.50);
+  /* Page gradient tints */
+  --t-grad1:          rgba(29, 78, 216, 0.08);
+  --t-grad2:          rgba(14, 165, 233, 0.05);
+  /* Theme toggle button */
+  --t-toggle-bg:      rgba(255, 255, 255, 0.05);
+  --t-toggle-border:  rgba(255, 255, 255, 0.10);
+  --t-toggle-color:   rgba(255, 255, 255, 0.60);
+  --t-toggle-bg-h:    rgba(255, 255, 255, 0.10);
+  --t-toggle-color-h: #ffffff;
+}
+
+/* ── Light overrides ── */
+.light {
+  /* Backgrounds */
+  --t-bg:      #f8fafc;
+  --t-card:    rgba(0, 0, 0, 0.03);
+  --t-card2:   rgba(0, 0, 0, 0.02);
+  --t-input:   rgba(0, 0, 0, 0.05);
+  --t-hover:   rgba(0, 0, 0, 0.04);
+  --t-hover2:  rgba(0, 0, 0, 0.02);
+  /* Borders */
+  --t-line:    rgba(0, 0, 0, 0.10);
+  --t-linef:   rgba(0, 0, 0, 0.06);
+  --t-linei:   rgba(0, 0, 0, 0.15);
+  /* Text */
+  --t-fg:      #0f172a;
+  --t-fg80:    rgba(15, 23, 42, 0.80);
+  --t-fg70:    rgba(15, 23, 42, 0.70);
+  --t-fg60:    rgba(15, 23, 42, 0.60);
+  --t-fg50:    rgba(15, 23, 42, 0.55);
+  --t-fg45:    rgba(15, 23, 42, 0.50);
+  --t-fg40:    rgba(15, 23, 42, 0.50);
+  --t-fg35:    rgba(15, 23, 42, 0.45);
+  --t-fg30:    rgba(15, 23, 42, 0.45);
+  --t-fg28:    rgba(15, 23, 42, 0.40);
+  --t-fg25:    rgba(15, 23, 42, 0.40);
+  --t-fg20:    rgba(15, 23, 42, 0.35);
+  --t-fg15:    rgba(15, 23, 42, 0.30);
+  /* Navbar */
+  --t-nav-bg:         rgba(248, 250, 252, 0.92);
+  --t-nav-mobile-bg:  rgba(248, 250, 252, 0.98);
+  --t-ticker-bg:      rgba(248, 250, 252, 0.97);
+  --t-ticker-border:  rgba(59, 130, 246, 0.15);
+  --t-ticker-text:    rgba(15, 23, 42, 0.40);
+  --t-ticker-sym:     rgba(15, 23, 42, 0.80);
+  --t-nav-link:       rgba(15, 23, 42, 0.50);
+  --t-nav-link-h:     rgba(15, 23, 42, 0.90);
+  --t-nav-ul:         rgba(37, 99, 235, 0.70);
+  --t-nav-border:     rgba(0, 0, 0, 0.08);
+  /* Modal */
+  --t-modal-bg:       #ffffff;
+  --t-backdrop:       rgba(0, 0, 0, 0.50);
+  /* Chart */
+  --t-chart-tick:     rgba(15, 23, 42, 0.35);
+  --t-chart-tip:      #ffffff;
+  --t-chart-tip-b:    rgba(0, 0, 0, 0.10);
+  --t-chart-label:    rgba(15, 23, 42, 0.50);
+  /* Page gradient tints */
+  --t-grad1:          rgba(29, 78, 216, 0.05);
+  --t-grad2:          rgba(14, 165, 233, 0.03);
+  /* Theme toggle button */
+  --t-toggle-bg:      rgba(0, 0, 0, 0.05);
+  --t-toggle-border:  rgba(0, 0, 0, 0.12);
+  --t-toggle-color:   rgba(15, 23, 42, 0.60);
+  --t-toggle-bg-h:    rgba(0, 0, 0, 0.10);
+  --t-toggle-color-h: #0f172a;
+}
+
+/* ── Base ── */
 html {
-  background-color: #000000;
+  background-color: var(--t-bg);
 }
 
 body {
-  background-color: #000000;
+  background-color: var(--t-bg);
   background: radial-gradient(
       1200px 600px at top center,
-      rgba(59, 130, 246, 0.08),
+      var(--t-grad1),
       transparent 60%
     ),
-    linear-gradient(180deg, #020617 0%, #000000 100%);
-  color: var(--foreground);
+    linear-gradient(180deg, var(--t-bg) 0%, var(--t-bg) 100%);
+  color: var(--t-fg);
+  transition: background-color 0.2s, color 0.2s;
 }
 
+/* ── Animations ── */
 @keyframes ticker {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
- 
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-

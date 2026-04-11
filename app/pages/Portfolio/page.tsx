@@ -91,13 +91,13 @@ export default function PortfolioPage() {
   const statusStyle: Record<string, string> = {
     filled:    "bg-green-500/10 text-green-400 border-green-500/20",
     pending:   "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    cancelled: "bg-white/5 text-white/30 border-white/10",
+    cancelled: "bg-t-input text-t-fg30 border-t-linei",
   };
   const barColors = ["bg-blue-500","bg-green-500","bg-purple-500","bg-yellow-500","bg-pink-500"];
 
   return (
-    <div className="min-h-screen bg-black text-white pb-16"
-      style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.07) 0%, transparent 60%)" }}>
+    <div className="min-h-screen bg-t-bg text-t-fg pb-16"
+      style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%)" }}>
       <Navbar tickerItems={tickerItems} />
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-44 pb-12 space-y-8">
 
@@ -105,7 +105,7 @@ export default function PortfolioPage() {
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-1">
             {loggedInUser ? `@${loggedInUser}` : "Account"}
           </p>
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold text-t-fg">
             My Portfolio
           </h1>
         </div>
@@ -113,39 +113,39 @@ export default function PortfolioPage() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Portfolio Value", value: fmtC(totalPortfolio), sub: "Investments + Cash", color: "text-white" },
+            { label: "Portfolio Value", value: fmtC(totalPortfolio), sub: "Investments + Cash", color: "text-t-fg" },
             { label: "Total P&L",       value: `${totalPnL >= 0 ? "+" : ""}${fmtC(totalPnL)}`, sub: `${totalPnLPct >= 0 ? "+" : ""}${totalPnLPct.toFixed(2)}% all time`, color: totalPnL >= 0 ? "text-green-400" : "text-red-400" },
-            { label: "Invested",        value: fmtC(totalValue), sub: `Cost: ${fmtC(totalInvested)}`, color: "text-white" },
+            { label: "Invested",        value: fmtC(totalValue), sub: `Cost: ${fmtC(totalInvested)}`, color: "text-t-fg" },
             { label: "Cash",            value: fmtC(MOCK_CASH), sub: "Ready to invest", color: "text-blue-300" },
           ].map(({ label, value, sub, color }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
-              <p className="text-white/30 text-xs uppercase tracking-widest mb-2">{label}</p>
+            <div key={label} className="bg-t-card border border-t-line rounded-2xl p-5">
+              <p className="text-t-fg30 text-xs uppercase tracking-widest mb-2">{label}</p>
               <p className={`text-xl md:text-2xl font-bold ${color}`}>{value}</p>
-              <p className="text-white/25 text-xs mt-1">{sub}</p>
+              <p className="text-t-fg25 text-xs mt-1">{sub}</p>
             </div>
           ))}
         </div>
 
         {/* Allocation bar */}
-        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
-          <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-4">Allocation</p>
+        <div className="bg-t-card border border-t-line rounded-2xl p-5">
+          <p className="text-xs font-bold tracking-widest uppercase text-t-fg30 mb-4">Allocation</p>
           <div className="flex rounded-full overflow-hidden h-3 mb-4">
             {holdingsWithPnL.map((h, i) => (
               <div key={h.ticker} className={`${barColors[i % barColors.length]} transition-all`}
                 style={{ width: `${(h.currentValue / totalPortfolio) * 100}%` }} />
             ))}
-            <div className="bg-white/20" style={{ width: `${(MOCK_CASH / totalPortfolio) * 100}%` }} />
+            <div className="bg-t-input" style={{ width: `${(MOCK_CASH / totalPortfolio) * 100}%` }} />
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {holdingsWithPnL.map((h, i) => (
               <div key={h.ticker} className="flex items-center gap-1.5">
                 <div className={`w-2 h-2 rounded-full ${barColors[i % barColors.length]}`} />
-                <span className="text-white/40 text-xs">{h.ticker} {((h.currentValue/totalPortfolio)*100).toFixed(1)}%</span>
+                <span className="text-t-fg40 text-xs">{h.ticker} {((h.currentValue/totalPortfolio)*100).toFixed(1)}%</span>
               </div>
             ))}
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-white/20" />
-              <span className="text-white/40 text-xs">Cash {((MOCK_CASH/totalPortfolio)*100).toFixed(1)}%</span>
+              <div className="w-2 h-2 rounded-full bg-t-input" />
+              <span className="text-t-fg40 text-xs">Cash {((MOCK_CASH/totalPortfolio)*100).toFixed(1)}%</span>
             </div>
           </div>
         </div>
@@ -161,18 +161,18 @@ export default function PortfolioPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white/[0.03] border border-white/8 rounded-xl p-1 w-fit">
+        <div className="flex gap-1 bg-t-card border border-t-line rounded-xl p-1 w-fit">
           {(["holdings","orders"] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab ? "bg-blue-600 text-white" : "text-white/40 hover:text-white/70"}`}>
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab ? "bg-blue-600 text-white" : "text-t-fg40 hover:text-t-fg70"}`}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
 
         {activeTab === "holdings" && (
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-12 px-6 py-3 border-b border-white/8 text-xs font-bold tracking-widest uppercase text-white/20">
+          <div className="bg-t-card border border-t-line rounded-2xl overflow-hidden">
+            <div className="grid grid-cols-12 px-6 py-3 border-b border-t-line text-xs font-bold tracking-widest uppercase text-t-fg20">
               <span className="col-span-3">Stock</span>
               <span className="col-span-2 text-right">Shares</span>
               <span className="col-span-2 text-right">Avg Cost</span>
@@ -180,19 +180,19 @@ export default function PortfolioPage() {
               <span className="col-span-3 text-right">P&L</span>
             </div>
             {loadingPrices
-              ? [1,2,3,4,5].map(i => <div key={i} className="m-4 h-12 bg-white/5 rounded-lg animate-pulse" />)
+              ? [1,2,3,4,5].map(i => <div key={i} className="m-4 h-12 bg-t-input rounded-lg animate-pulse" />)
               : holdingsWithPnL.map(h => {
                   const info = companyData[h.ticker];
                   return (
                     <div key={h.ticker} onClick={() => router.push(`/pages/${h.ticker}`)}
-                      className="grid grid-cols-12 px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] cursor-pointer transition-all group items-center">
+                      className="grid grid-cols-12 px-6 py-4 border-b border-t-linef last:border-0 hover:bg-t-hover2 cursor-pointer transition-all group items-center">
                       <div className="col-span-3">
-                        <p className="text-white font-semibold text-sm group-hover:text-blue-200 transition-colors">{h.ticker}</p>
-                        <p className="text-white/25 text-xs truncate">{info?.fullName ?? ""}</p>
+                        <p className="text-t-fg font-semibold text-sm group-hover:text-blue-200 transition-colors">{h.ticker}</p>
+                        <p className="text-t-fg25 text-xs truncate">{info?.fullName ?? ""}</p>
                       </div>
-                      <span className="col-span-2 text-white/70 text-sm text-right">{h.shares.toLocaleString()}</span>
-                      <span className="col-span-2 text-white/50 text-sm text-right">MK {fmt(h.avgCost)}</span>
-                      <span className="col-span-2 text-white text-sm font-medium text-right">MK {fmt(h.currentPrice)}</span>
+                      <span className="col-span-2 text-t-fg70 text-sm text-right">{h.shares.toLocaleString()}</span>
+                      <span className="col-span-2 text-t-fg50 text-sm text-right">MK {fmt(h.avgCost)}</span>
+                      <span className="col-span-2 text-t-fg text-sm font-medium text-right">MK {fmt(h.currentPrice)}</span>
                       <div className="col-span-3 text-right">
                         <p className={`text-sm font-bold ${h.pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
                           {h.pnl >= 0 ? "+" : ""}{fmtC(h.pnl)}
@@ -206,10 +206,10 @@ export default function PortfolioPage() {
                 })
             }
             {/* Totals row */}
-            <div className="grid grid-cols-12 px-6 py-4 bg-white/[0.02] border-t border-white/8 items-center">
-              <span className="col-span-3 text-white/40 text-xs uppercase tracking-widest font-bold">Total</span>
+            <div className="grid grid-cols-12 px-6 py-4 bg-t-card2 border-t border-t-line items-center">
+              <span className="col-span-3 text-t-fg40 text-xs uppercase tracking-widest font-bold">Total</span>
               <span className="col-span-4" />
-              <span className="col-span-2 text-white/40 text-xs text-right">{fmtC(totalInvested)}</span>
+              <span className="col-span-2 text-t-fg40 text-xs text-right">{fmtC(totalInvested)}</span>
               <div className="col-span-3 text-right">
                 <p className={`text-sm font-bold ${totalPnL >= 0 ? "text-green-400" : "text-red-400"}`}>
                   {totalPnL >= 0 ? "+" : ""}{fmtC(totalPnL)}
@@ -223,8 +223,8 @@ export default function PortfolioPage() {
         )}
 
         {activeTab === "orders" && (
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-12 px-6 py-3 border-b border-white/8 text-xs font-bold tracking-widest uppercase text-white/20">
+          <div className="bg-t-card border border-t-line rounded-2xl overflow-hidden">
+            <div className="grid grid-cols-12 px-6 py-3 border-b border-t-line text-xs font-bold tracking-widest uppercase text-t-fg20">
               <span className="col-span-2">Date</span>
               <span className="col-span-2">Stock</span>
               <span className="col-span-2">Type</span>
@@ -233,15 +233,15 @@ export default function PortfolioPage() {
               <span className="col-span-2 text-right">Status</span>
             </div>
             {[...MOCK_ORDERS].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(order => (
-              <div key={order.id} className="grid grid-cols-12 px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-all items-center">
-                <span className="col-span-2 text-white/30 text-xs">{order.date}</span>
-                <span className="col-span-2 text-white text-sm font-semibold cursor-pointer hover:text-blue-300 transition-colors"
+              <div key={order.id} className="grid grid-cols-12 px-6 py-4 border-b border-t-linef last:border-0 hover:bg-t-hover2 transition-all items-center">
+                <span className="col-span-2 text-t-fg30 text-xs">{order.date}</span>
+                <span className="col-span-2 text-t-fg text-sm font-semibold cursor-pointer hover:text-blue-300 transition-colors"
                   onClick={() => router.push(`/pages/${order.ticker}`)}>{order.ticker}</span>
                 <span className={`col-span-2 text-sm font-bold ${order.type === "buy" ? "text-green-400" : "text-red-400"}`}>
                   {order.type.toUpperCase()}
                 </span>
-                <span className="col-span-2 text-white/70 text-sm text-right">{order.shares.toLocaleString()}</span>
-                <span className="col-span-2 text-white/50 text-sm text-right">MK {fmt(order.price)}</span>
+                <span className="col-span-2 text-t-fg70 text-sm text-right">{order.shares.toLocaleString()}</span>
+                <span className="col-span-2 text-t-fg50 text-sm text-right">MK {fmt(order.price)}</span>
                 <div className="col-span-2 flex justify-end">
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${statusStyle[order.status]}`}>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

@@ -23,14 +23,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center rounded-xl font-medium transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
           {
-            // Primary neon gradient button
+            // Primary gradient button — keeps white text on colored bg intentionally
             "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:brightness-110 shadow-lg":
               variant === "default",
-            // Outline: semi-transparent glass border
-            "border border-white/30 bg-white/5 text-white hover:bg-white/10":
+            // Outline: theme-aware glass border
+            "border text-t-fg hover:bg-t-hover":
               variant === "outline",
             // Ghost: hover glass effect
-            "hover:bg-white/10 text-white":
+            "hover:bg-t-hover text-t-fg":
               variant === "ghost",
             // Link: neon blue text
             "underline-offset-4 hover:underline text-blue-400":
@@ -43,6 +43,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           },
           className
         )}
+        style={
+          variant === "outline"
+            ? { borderColor: "var(--t-linei)", ...props.style }
+            : props.style
+        }
         {...props}
       />
     );

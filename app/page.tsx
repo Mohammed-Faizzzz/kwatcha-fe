@@ -51,10 +51,10 @@ export default function LandingPage() {
 
   return (
     <div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen bg-t-bg text-t-fg"
       style={{
         backgroundImage:
-          "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
+          "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, var(--t-grad2) 0%, transparent 60%)",
       }}
     >
       <Navbar tickerItems={tickerItems} />
@@ -68,14 +68,14 @@ export default function LandingPage() {
               Msika wa Kampani
             </p>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-5">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-t-fg leading-[1.08] mb-5">
             Malawi is growing.
             <br />
-            <span className="text-white/28 font-semibold">Invest in it.</span>
+            <span className="text-t-fg28 font-semibold">Invest in it.</span>
           </h1>
-          <p className="text-white/45 text-[15px] max-w-md leading-relaxed mb-10">
+          <p className="text-t-fg45 text-[15px] max-w-md leading-relaxed mb-10">
             The Malawi Stock Exchange, finally in your hands.{" "}
-            <span className="text-white/70 font-medium">Own a piece of home.</span>
+            <span className="text-t-fg70 font-medium">Own a piece of home.</span>
           </p>
           <div className="flex flex-wrap gap-4">
             <Button
@@ -88,7 +88,7 @@ export default function LandingPage() {
             <Button
               size="lg"
               onClick={() => router.push("/pages/AccountCreationPage")}
-              className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 font-medium px-7 rounded-xl transition-all"
+              className="border border-t-linei bg-t-input hover:bg-t-hover text-t-fg80 font-medium px-7 rounded-xl transition-all"
             >
               Invest Now
             </Button>
@@ -97,15 +97,15 @@ export default function LandingPage() {
 
         {/* Floating stat pills */}
         <div className="flex flex-wrap gap-3 mt-10">
-          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
-            <span className="text-white/28 text-[11px]">Listed</span>
-            <span className="text-white/72 text-[11px] font-medium">
+          <div className="flex items-center gap-2 bg-t-card border border-t-linei rounded-full px-4 py-1.5">
+            <span className="text-t-fg28 text-[11px]">Listed</span>
+            <span className="text-t-fg70 text-[11px] font-medium">
               {stocks ? `${Object.keys(stocks).length} companies` : "—"}
             </span>
           </div>
-          <div className="flex items-center gap-2 bg-white/[0.035] border border-white/10 rounded-full px-4 py-1.5">
-            <span className="text-white/28 text-[11px]">Currency</span>
-            <span className="text-white/72 text-[11px] font-medium">MWK</span>
+          <div className="flex items-center gap-2 bg-t-card border border-t-linei rounded-full px-4 py-1.5">
+            <span className="text-t-fg28 text-[11px]">Currency</span>
+            <span className="text-t-fg70 text-[11px] font-medium">MWK</span>
           </div>
         </div>
       </section>
@@ -130,7 +130,7 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Market Status + Breadth */}
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="bg-t-card border border-t-line rounded-2xl p-6 backdrop-blur-sm">
             <div className="flex items-start justify-between mb-4">
               <TrendingUp className="text-blue-400/60" size={20} />
               <span
@@ -143,40 +143,40 @@ export default function LandingPage() {
                 {marketStatus}
               </span>
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Market Breadth</p>
+            <p className="text-t-fg30 text-xs uppercase tracking-widest mb-1">Market Breadth</p>
             <div className="flex items-end gap-3 mb-3">
-              <p className="text-2xl font-bold text-white">{movers?.summary.total_stocks ?? "—"}</p>
-              <p className="text-white/30 text-xs mb-1">stocks</p>
+              <p className="text-2xl font-bold text-t-fg">{movers?.summary.total_stocks ?? "—"}</p>
+              <p className="text-t-fg30 text-xs mb-1">stocks</p>
             </div>
             <div className="flex gap-3 text-xs">
               <span className="text-green-400/80">▲ {movers?.summary.gainers ?? "—"} up</span>
               <span className="text-red-400/70">▼ {movers?.summary.losers ?? "—"} down</span>
-              <span className="text-white/25">— {movers?.summary.unchanged ?? "—"} flat</span>
+              <span className="text-t-fg25">— {movers?.summary.unchanged ?? "—"} flat</span>
             </div>
           </div>
 
           {/* Total Turnover */}
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="bg-t-card border border-t-line rounded-2xl p-6 backdrop-blur-sm">
             <div className="mb-4">
               <BarChart3 className="text-blue-400/60" size={20} />
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Total Turnover</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-t-fg30 text-xs uppercase tracking-widest mb-1">Total Turnover</p>
+            <p className="text-2xl font-bold text-t-fg">
               {movers
                 ? `MK ${Number(movers.summary.total_turnover).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : "—"}
             </p>
-            <p className="text-white/25 text-xs mt-1">
+            <p className="text-t-fg25 text-xs mt-1">
               Vol: {movers ? Number(movers.summary.total_volume).toLocaleString() : "—"} shares
             </p>
           </div>
 
           {/* Most Active */}
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="bg-t-card border border-t-line rounded-2xl p-6 backdrop-blur-sm">
             <div className="mb-4">
               <Activity className="text-blue-400/60" size={20} />
             </div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Most Active</p>
+            <p className="text-t-fg30 text-xs uppercase tracking-widest mb-3">Most Active</p>
             <div className="space-y-3">
               {movers?.highest_volume.slice(0, 3).map((s) => (
                 <div
@@ -184,15 +184,15 @@ export default function LandingPage() {
                   className="flex items-center justify-between cursor-pointer group"
                   onClick={() => router.push(`/pages/${s.ticker}`)}
                 >
-                  <span className="text-white/70 text-sm font-semibold group-hover:text-white transition-colors">
+                  <span className="text-t-fg70 text-sm font-semibold group-hover:text-t-fg transition-colors">
                     {s.ticker}
                   </span>
-                  <span className="text-white/35 text-xs">
+                  <span className="text-t-fg35 text-xs">
                     {Number(s.volume).toLocaleString()} sh
                   </span>
                 </div>
               ))}
-              {!movers && <p className="text-white/20 text-xs">Loading...</p>}
+              {!movers && <p className="text-t-fg20 text-xs">Loading...</p>}
             </div>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function LandingPage() {
           <div
             className="rounded-2xl p-6 backdrop-blur-sm"
             style={{
-              background: "linear-gradient(135deg, rgba(34,197,94,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+              background: "linear-gradient(135deg, rgba(34,197,94,0.04) 0%, var(--t-card2) 100%)",
               border: "1px solid rgba(34,197,94,0.12)",
               boxShadow: "0 0 40px -12px rgba(34,197,94,0.08)",
             }}
@@ -213,11 +213,11 @@ export default function LandingPage() {
                 <div className="w-6 h-6 rounded-lg bg-green-500/15 border border-green-500/20 flex items-center justify-center">
                   <TrendingUp size={12} className="text-green-400" />
                 </div>
-                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Top Gainers</p>
+                <p className="text-t-fg60 text-xs uppercase tracking-widest font-bold">Top Gainers</p>
               </div>
               <button
                 onClick={() => router.push("/pages/Market")}
-                className="text-[10px] text-white/25 hover:text-white/50 transition-colors font-medium"
+                className="text-[10px] text-t-fg25 hover:text-t-fg50 transition-colors font-medium"
               >
                 View all →
               </button>
@@ -238,11 +238,11 @@ export default function LandingPage() {
                     {i + 1}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
+                    <p className="text-sm font-bold text-t-fg80 group-hover:text-t-fg transition-colors leading-none">
                       {g.ticker}
                     </p>
                     {g.close != null && (
-                      <p className="text-[11px] text-white/25 mt-0.5">
+                      <p className="text-[11px] text-t-fg25 mt-0.5">
                         MK {Number(g.close).toLocaleString()}
                       </p>
                     )}
@@ -255,12 +255,12 @@ export default function LandingPage() {
               {loading && (
                 <div className="space-y-2">
                   {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-10 rounded-xl bg-white/[0.03] animate-pulse" />
+                    <div key={n} className="h-10 rounded-xl bg-t-card animate-pulse" />
                   ))}
                 </div>
               )}
               {!loading && !movers && (
-                <p className="text-white/20 text-xs text-center py-4">No data available</p>
+                <p className="text-t-fg20 text-xs text-center py-4">No data available</p>
               )}
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function LandingPage() {
           <div
             className="rounded-2xl p-6 backdrop-blur-sm"
             style={{
-              background: "linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+              background: "linear-gradient(135deg, rgba(239,68,68,0.04) 0%, var(--t-card2) 100%)",
               border: "1px solid rgba(239,68,68,0.1)",
               boxShadow: "0 0 40px -12px rgba(239,68,68,0.07)",
             }}
@@ -279,11 +279,11 @@ export default function LandingPage() {
                 <div className="w-6 h-6 rounded-lg bg-red-500/12 border border-red-500/18 flex items-center justify-center">
                   <TrendingDown size={12} className="text-red-400" />
                 </div>
-                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Top Losers</p>
+                <p className="text-t-fg60 text-xs uppercase tracking-widest font-bold">Top Losers</p>
               </div>
               <button
                 onClick={() => router.push("/pages/Market")}
-                className="text-[10px] text-white/25 hover:text-white/50 transition-colors font-medium"
+                className="text-[10px] text-t-fg25 hover:text-t-fg50 transition-colors font-medium"
               >
                 View all →
               </button>
@@ -304,11 +304,11 @@ export default function LandingPage() {
                     {i + 1}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
+                    <p className="text-sm font-bold text-t-fg80 group-hover:text-t-fg transition-colors leading-none">
                       {l.ticker}
                     </p>
                     {l.close != null && (
-                      <p className="text-[11px] text-white/25 mt-0.5">
+                      <p className="text-[11px] text-t-fg25 mt-0.5">
                         MK {Number(l.close).toLocaleString()}
                       </p>
                     )}
@@ -321,12 +321,12 @@ export default function LandingPage() {
               {loading && (
                 <div className="space-y-2">
                   {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-10 rounded-xl bg-white/[0.03] animate-pulse" />
+                    <div key={n} className="h-10 rounded-xl bg-t-card animate-pulse" />
                   ))}
                 </div>
               )}
               {!loading && !movers && (
-                <p className="text-white/20 text-xs text-center py-4">No data available</p>
+                <p className="text-t-fg20 text-xs text-center py-4">No data available</p>
               )}
             </div>
           </div>

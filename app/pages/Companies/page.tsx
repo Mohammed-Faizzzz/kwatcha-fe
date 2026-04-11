@@ -61,10 +61,10 @@ export default function CompaniesPage() {
 
   return (
     <div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen bg-t-bg text-t-fg"
       style={{
         backgroundImage:
-          "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
+          "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, var(--t-grad2) 0%, transparent 60%)",
       }}
     >
       <Navbar tickerItems={tickerItems} />
@@ -78,8 +78,8 @@ export default function CompaniesPage() {
               Msika wa Kampani
             </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">Listed Companies</h1>
-          <p className="text-white/40 text-sm">
+          <h1 className="text-4xl md:text-5xl font-bold text-t-fg mb-3">Listed Companies</h1>
+          <p className="text-t-fg40 text-sm">
             All {Object.keys(companyData).length} companies currently listed on the MSE.
           </p>
         </div>
@@ -98,13 +98,13 @@ export default function CompaniesPage() {
         <div className="flex flex-wrap items-center gap-4 mb-8">
           {/* Search */}
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-t-fg25 pointer-events-none" />
             <input
               type="text"
               placeholder="Search by name or ticker..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-white/5 border border-white/8 rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/40 transition-colors w-56"
+              className="bg-t-input border border-t-line rounded-xl pl-9 pr-4 py-2 text-sm text-t-fg placeholder:text-t-fg20 focus:outline-none focus:border-blue-500/40 transition-colors w-56"
             />
           </div>
 
@@ -117,7 +117,7 @@ export default function CompaniesPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   sector === s
                     ? "bg-blue-600/30 border border-blue-500/40 text-blue-300"
-                    : "bg-white/5 border border-white/8 text-white/40 hover:text-white/70"
+                    : "bg-t-input border border-t-line text-t-fg40 hover:text-t-fg70"
                 }`}
               >
                 {s}
@@ -138,15 +138,15 @@ export default function CompaniesPage() {
               <div
                 key={ticker}
                 onClick={() => router.push(`/pages/${ticker}`)}
-                className="group bg-white/[0.03] border border-white/8 hover:border-blue-500/30 hover:bg-white/[0.05] rounded-2xl p-6 transition-all cursor-pointer flex flex-col gap-4"
+                className="group bg-t-card border border-t-line hover:border-blue-500/30 hover:bg-t-hover rounded-2xl p-6 transition-all cursor-pointer flex flex-col gap-4"
               >
                 {/* Top row */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-xs text-white/25 font-bold tracking-widest uppercase">
+                    <span className="text-xs text-t-fg25 font-bold tracking-widest uppercase">
                       {ticker}
                     </span>
-                    <p className="text-white font-semibold mt-0.5 group-hover:text-blue-200 transition-colors leading-tight">
+                    <p className="text-t-fg font-semibold mt-0.5 group-hover:text-blue-200 transition-colors leading-tight">
                       {company.fullName}
                     </p>
                   </div>
@@ -165,24 +165,24 @@ export default function CompaniesPage() {
                       {change.toFixed(2)}%
                     </span>
                   ) : (
-                    <span className="w-14 h-5 bg-white/5 rounded-full animate-pulse" />
+                    <span className="w-14 h-5 bg-t-input rounded-full animate-pulse" />
                   )}
                 </div>
 
                 {/* Sector badge */}
                 <div className="flex items-center gap-2">
-                  <Building2 size={11} className="text-white/20" />
-                  <span className="text-xs text-white/30">{company.sector}</span>
+                  <Building2 size={11} className="text-t-fg20" />
+                  <span className="text-xs text-t-fg30">{company.sector}</span>
                 </div>
 
                 {/* Description */}
-                <p className="text-white/35 text-xs leading-relaxed line-clamp-3">
+                <p className="text-t-fg35 text-xs leading-relaxed line-clamp-3">
                   {company.description}
                 </p>
 
                 {/* Price + link */}
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-                  <span className="text-white/70 text-sm font-semibold">
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-t-linef">
+                  <span className="text-t-fg70 text-sm font-semibold">
                     {stock ? `MK ${Number(stock.close).toLocaleString()}` : "—"}
                   </span>
                   <span className="text-blue-400/50 text-xs group-hover:text-blue-400 transition-colors flex items-center gap-1">
@@ -195,7 +195,7 @@ export default function CompaniesPage() {
         </div>
 
         {companies.length === 0 && (
-          <p className="text-white/20 text-sm text-center py-16">No companies match your search.</p>
+          <p className="text-t-fg20 text-sm text-center py-16">No companies match your search.</p>
         )}
       </div>
 

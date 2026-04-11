@@ -56,10 +56,10 @@ export default function DashboardPage() {
 
   return (
     <div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen bg-t-bg text-t-fg"
       style={{
         backgroundImage:
-          "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
+          "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, var(--t-grad2) 0%, transparent 60%)",
       }}
     >
 
@@ -70,11 +70,11 @@ export default function DashboardPage() {
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">Dashboard</p>
           <h1
-            className="text-3xl md:text-4xl font-bold text-white"
+            className="text-3xl md:text-4xl font-bold text-t-fg"
           >
             Welcome back, {loggedInUser}
           </h1>
-          <p className="text-white/40 text-sm mt-2">Here's what's happening on the Malawi Stock Exchange today.</p>
+          <p className="text-t-fg40 text-sm mt-2">Here's what's happening on the Malawi Stock Exchange today.</p>
         </div>
 
         {/* Error banner */}
@@ -90,12 +90,12 @@ export default function DashboardPage() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-4 mb-10">
           {[
-            { label: "Listed Stocks", value: stocks ? Object.keys(stocks).length.toString() : "—", accent: "text-white" },
+            { label: "Listed Stocks", value: stocks ? Object.keys(stocks).length.toString() : "—", accent: "text-t-fg" },
             { label: "Gainers", value: gainers.length.toString(), accent: "text-green-400" },
             { label: "Losers", value: losers.length.toString(), accent: "text-red-400" },
           ].map(({ label, value, accent }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
-              <p className="text-white/30 text-xs uppercase tracking-widest mb-2">{label}</p>
+            <div key={label} className="bg-t-card border border-t-line rounded-2xl p-5">
+              <p className="text-t-fg30 text-xs uppercase tracking-widest mb-2">{label}</p>
               <p className={`text-2xl font-bold ${accent}`}>{value}</p>
             </div>
           ))}
@@ -103,30 +103,30 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {/* Top Gainers */}
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+          <div className="bg-t-card border border-t-line rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-5">
               <div className="w-2 h-2 rounded-full bg-green-400" />
-              <h2 className="text-sm font-bold tracking-widest uppercase text-white/60">Top Gainers</h2>
+              <h2 className="text-sm font-bold tracking-widest uppercase text-t-fg60">Top Gainers</h2>
             </div>
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-10 bg-white/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-10 bg-t-input rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : gainers.length === 0 ? (
-              <p className="text-white/25 text-sm">No gainers today</p>
+              <p className="text-t-fg25 text-sm">No gainers today</p>
             ) : (
               <div className="space-y-3">
                 {gainers.map(([name, d]) => (
                   <div
                     key={name}
                     onClick={() => router.push(`/pages/${name}`)}
-                    className="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/6 cursor-pointer transition-all group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-t-card hover:bg-t-input cursor-pointer transition-all group"
                   >
                     <div>
-                      <p className="text-white font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
-                      <p className="text-white/30 text-xs">MK {Number(d.close).toLocaleString()}</p>
+                      <p className="text-t-fg font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
+                      <p className="text-t-fg30 text-xs">MK {Number(d.close).toLocaleString()}</p>
                     </div>
                     <span className="text-green-400 text-sm font-bold">+{(d.pct_change * 100).toFixed(2)}%</span>
                   </div>
@@ -136,30 +136,30 @@ export default function DashboardPage() {
           </div>
 
           {/* Top Losers */}
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+          <div className="bg-t-card border border-t-line rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-5">
               <div className="w-2 h-2 rounded-full bg-red-400" />
-              <h2 className="text-sm font-bold tracking-widest uppercase text-white/60">Top Losers</h2>
+              <h2 className="text-sm font-bold tracking-widest uppercase text-t-fg60">Top Losers</h2>
             </div>
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-10 bg-white/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-10 bg-t-input rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : losers.length === 0 ? (
-              <p className="text-white/25 text-sm">No losers today</p>
+              <p className="text-t-fg25 text-sm">No losers today</p>
             ) : (
               <div className="space-y-3">
                 {losers.map(([name, d]) => (
                   <div
                     key={name}
                     onClick={() => router.push(`/pages/${name}`)}
-                    className="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/6 cursor-pointer transition-all group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-t-card hover:bg-t-input cursor-pointer transition-all group"
                   >
                     <div>
-                      <p className="text-white font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
-                      <p className="text-white/30 text-xs">MK {Number(d.close).toLocaleString()}</p>
+                      <p className="text-t-fg font-medium text-sm group-hover:text-blue-200 transition-colors">{name}</p>
+                      <p className="text-t-fg30 text-xs">MK {Number(d.close).toLocaleString()}</p>
                     </div>
                     <span className="text-red-400 text-sm font-bold">{(d.pct_change * 100).toFixed(2)}%</span>
                   </div>
@@ -170,22 +170,22 @@ export default function DashboardPage() {
         </div>
 
         {/* All Stocks */}
-        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+        <div className="bg-t-card border border-t-line rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-bold tracking-widest uppercase text-white/60">All Listed Stocks</h2>
-            <span className="text-white/20 text-xs">{stocks ? Object.keys(stocks).length : "—"} companies</span>
+            <h2 className="text-sm font-bold tracking-widest uppercase text-t-fg60">All Listed Stocks</h2>
+            <span className="text-t-fg20 text-xs">{stocks ? Object.keys(stocks).length : "—"} companies</span>
           </div>
 
           {loading ? (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-white/5 rounded-lg animate-pulse" />
+                <div key={i} className="h-12 bg-t-input rounded-lg animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-t-linef">
               {/* Table header */}
-              <div className="grid grid-cols-4 pb-3 text-xs font-bold tracking-widest uppercase text-white/20">
+              <div className="grid grid-cols-4 pb-3 text-xs font-bold tracking-widest uppercase text-t-fg20">
                 <span>Company</span>
                 <span className="text-right">Close</span>
                 <span className="text-right">Volume</span>
@@ -198,11 +198,11 @@ export default function DashboardPage() {
                   <div
                     key={name}
                     onClick={() => router.push(`/pages/${name}`)}
-                    className="grid grid-cols-4 py-3.5 cursor-pointer hover:bg-white/3 rounded-lg px-1 transition-all group"
+                    className="grid grid-cols-4 py-3.5 cursor-pointer hover:bg-t-card rounded-lg px-1 transition-all group"
                   >
-                    <span className="text-white text-sm font-medium group-hover:text-blue-200 transition-colors">{name}</span>
-                    <span className="text-white/70 text-sm text-right">MK {Number(d.close).toLocaleString()}</span>
-                    <span className="text-white/40 text-sm text-right">{Number(d.volume || 0).toLocaleString()}</span>
+                    <span className="text-t-fg text-sm font-medium group-hover:text-blue-200 transition-colors">{name}</span>
+                    <span className="text-t-fg70 text-sm text-right">MK {Number(d.close).toLocaleString()}</span>
+                    <span className="text-t-fg40 text-sm text-right">{Number(d.volume || 0).toLocaleString()}</span>
                     <span className={`text-sm text-right font-semibold ${isPos ? "text-green-400" : "text-red-400"}`}>
                       {isPos ? "+" : ""}{pctChange.toFixed(2)}%
                     </span>

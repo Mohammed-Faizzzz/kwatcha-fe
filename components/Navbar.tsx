@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/constants";
 import { getMarketStatus } from "@/lib/marketUtils";
+import { useTheme } from "next-themes";
 
 interface NavbarProps {
   tickerItems?: { symbol: string; price: string; change: number }[];
@@ -24,6 +25,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const marketStatus = getMarketStatus();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const stored = localStorage.getItem("mse_user");
@@ -84,10 +86,10 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
         <nav
           className="flex items-center justify-between px-4 md:px-12 py-4 md:py-5"
           style={{
-            background: "rgba(6,10,16,0.92)",
+            background: "var(--t-nav-bg)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            borderBottom: "0.5px solid rgba(255,255,255,0.08)",
+            borderBottom: "0.5px solid var(--t-nav-border)",
           }}
         >
           {/* Logo */}
@@ -102,9 +104,9 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
               height={38}
               style={{ borderRadius: "50%" }}
             />
-            <span style={{ fontSize: "17px", fontWeight: 500, color: "#fff", letterSpacing: "0.01em" }}>
+            <span style={{ fontSize: "17px", fontWeight: 500, color: "var(--t-fg)", letterSpacing: "0.01em" }}>
               Msika{" "}
-              <span style={{ color: "rgba(255,255,255,0.3)" }}>wa Kampani</span>
+              <span style={{ color: "var(--t-fg30)" }}>wa Kampani</span>
             </span>
           </div>
 
@@ -120,7 +122,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                   style={{
                     position: "relative",
                     fontSize: "15px",
-                    color: hoveredNav === section ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.45)",
+                    color: hoveredNav === section ? "var(--t-nav-link-h)" : "var(--t-nav-link)",
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
@@ -137,7 +139,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                       left: 0,
                       width: hoveredNav === section ? "100%" : "0%",
                       height: "1.5px",
-                      background: "rgba(99,155,255,0.7)",
+                      background: "var(--t-nav-ul)",
                       borderRadius: "2px",
                       transition: "width 0.25s ease",
                     }}
@@ -188,7 +190,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
             <div className="hidden md:flex items-center" style={{ gap: "10px" }}>
               {loggedInUser ? (
                 <>
-                  <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.4)" }}>
+                  <span style={{ fontSize: "15px", color: "var(--t-fg40)" }}>
                     @{loggedInUser}
                   </span>
                   <button
@@ -213,21 +215,21 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     onClick={() => { setShowLogin(true); setError(null); }}
                     style={{
                       fontSize: "15px",
-                      color: "rgba(255,255,255,0.7)",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "0.5px solid rgba(255,255,255,0.1)",
+                      color: "var(--t-fg70)",
+                      background: "var(--t-input)",
+                      border: "0.5px solid var(--t-linei)",
                       padding: "9px 20px",
                       borderRadius: "8px",
                       cursor: "pointer",
                       transition: "all 0.15s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.09)";
-                      e.currentTarget.style.color = "#fff";
+                      e.currentTarget.style.background = "var(--t-hover)";
+                      e.currentTarget.style.color = "var(--t-fg)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                      e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+                      e.currentTarget.style.background = "var(--t-input)";
+                      e.currentTarget.style.color = "var(--t-fg70)";
                     }}
                   >
                     Log in
@@ -256,11 +258,41 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
 
             {/* Hamburger — mobile only */}
             <button
-              className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
+              className="md:hidden p-2 transition-colors"
+              style={{ color: "var(--t-fg60)" }}
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "36px",
+                height: "36px",
+                borderRadius: "8px",
+                background: "var(--t-toggle-bg)",
+                border: "0.5px solid var(--t-toggle-border)",
+                cursor: "pointer",
+                color: "var(--t-toggle-color)",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--t-toggle-bg-h)";
+                e.currentTarget.style.color = "var(--t-toggle-color-h)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--t-toggle-bg)";
+                e.currentTarget.style.color = "var(--t-toggle-color)";
+              }}
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
           </div>
         </nav>
@@ -270,23 +302,26 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
           <div
             className="md:hidden flex flex-col px-4 py-4 gap-1"
             style={{
-              background: "rgba(6,10,16,0.98)",
-              borderBottom: "0.5px solid rgba(255,255,255,0.08)",
+              background: "var(--t-nav-mobile-bg)",
+              borderBottom: "0.5px solid var(--t-nav-border)",
             }}
           >
             {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : [])].map((section) => (
               <button
                 key={section}
                 onClick={() => { router.push(`/pages/${section}`); setMenuOpen(false); }}
-                className="text-left px-3 py-3 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors text-[15px]"
+                className="text-left px-3 py-3 rounded-lg transition-colors text-[15px]"
+                style={{ color: "var(--t-fg60)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-fg)"; e.currentTarget.style.background = "var(--t-hover)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--t-fg60)"; e.currentTarget.style.background = "transparent"; }}
               >
                 {section}
               </button>
             ))}
-            <div className="flex flex-col gap-2 mt-3 pt-3" style={{ borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex flex-col gap-2 mt-3 pt-3" style={{ borderTop: "0.5px solid var(--t-nav-border)" }}>
               {loggedInUser ? (
                 <>
-                  <span className="text-white/40 text-sm px-3">@{loggedInUser}</span>
+                  <span className="text-sm px-3" style={{ color: "var(--t-fg40)" }}>@{loggedInUser}</span>
                   <button
                     onClick={() => { handleLogout(); setMenuOpen(false); }}
                     className="w-full text-white font-medium py-2.5 rounded-lg text-[15px]"
@@ -299,8 +334,8 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                 <>
                   <button
                     onClick={() => { setShowLogin(true); setError(null); setMenuOpen(false); }}
-                    className="w-full text-white/70 py-2.5 rounded-lg text-[15px]"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.1)" }}
+                    className="w-full py-2.5 rounded-lg text-[15px]"
+                    style={{ color: "var(--t-fg70)", background: "var(--t-input)", border: "0.5px solid var(--t-linei)" }}
                   >
                     Log in
                   </button>
@@ -316,13 +351,13 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
             </div>
           </div>
         )}
-        
-                {/* ── Ticker strip ── */}
+
+        {/* ── Ticker strip ── */}
         {tickerItems.length > 0 && (
           <div style={{
             overflow: "hidden",
-            background: "rgba(6,10,16,0.97)",
-            borderBottom: "0.5px solid rgba(59,130,246,0.12)",
+            background: "var(--t-ticker-bg)",
+            borderBottom: "0.5px solid var(--t-ticker-border)",
             paddingTop: "10px",
             paddingBottom: "10px",
           }}
@@ -344,10 +379,10 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     gap: "5px",
                     padding: "0 28px",
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.35)",
+                    color: "var(--t-ticker-text)",
                   }}
                 >
-                  <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                  <span style={{ color: "var(--t-ticker-sym)", fontWeight: 600 }}>
                     {item.symbol}
                   </span>
                   MWK {item.price}
@@ -358,7 +393,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                           ? "#4ade80"
                           : item.change < 0
                           ? "#f87171"
-                          : "rgba(255,255,255,0.25)",
+                          : "var(--t-fg25)",
                     }}
                   >
                     {item.change > 0 ? "+" : ""}
@@ -386,16 +421,16 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
       {showLogin && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center px-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)" }}
+          style={{ backgroundColor: "var(--t-backdrop)", backdropFilter: "blur(6px)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowLogin(false); }}
         >
           <div
             className="w-full max-w-sm rounded-2xl p-8 shadow-2xl"
             style={{
-              background: "#000",
-              border: "0.5px solid rgba(255,255,255,0.1)",
+              background: "var(--t-modal-bg)",
+              border: "0.5px solid var(--t-linei)",
               backgroundImage:
-                "radial-gradient(ellipse at 50% 0%, rgba(29,78,216,0.1) 0%, transparent 70%)",
+                "radial-gradient(ellipse at 50% 0%, rgba(29,78,216,0.08) 0%, transparent 70%)",
             }}
             onKeyDown={handleKeyDown}
           >
@@ -404,12 +439,15 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                 <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
                   Msika Wa Kampani
                 </p>
-                <h2 className="text-2xl font-bold text-white">Welcome back</h2>
-                <p className="text-white/40 text-sm mt-1">Sign in to your trading account</p>
+                <h2 className="text-2xl font-bold" style={{ color: "var(--t-fg)" }}>Welcome back</h2>
+                <p className="text-sm mt-1" style={{ color: "var(--t-fg40)" }}>Sign in to your trading account</p>
               </div>
               <button
                 onClick={() => setShowLogin(false)}
-                className="text-white/30 hover:text-white/60 transition-colors mt-1"
+                className="transition-colors mt-1"
+                style={{ color: "var(--t-fg30)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-fg60)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--t-fg30)"; }}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -423,16 +461,21 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                   Username
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-sm select-none">@</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm select-none" style={{ color: "var(--t-fg20)" }}>@</span>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => { setUsername(e.target.value); setError(null); }}
                     placeholder="your_username"
                     autoFocus
-                    className={`w-full bg-white/5 border rounded-lg pl-8 pr-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none transition-all ${
-                      error ? "border-red-500/50 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
+                    className={`w-full rounded-lg pl-8 pr-4 py-2.5 text-sm focus:outline-none transition-all ${
+                      error ? "border-red-500/50 focus:border-red-400" : "focus:border-blue-500/60"
                     }`}
+                    style={{
+                      background: "var(--t-input)",
+                      border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "var(--t-linei)"}`,
+                      color: "var(--t-fg)",
+                    }}
                   />
                 </div>
               </div>
@@ -447,14 +490,20 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(null); }}
                     placeholder="••••••••"
-                    className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 pr-10 text-white text-sm placeholder-white/20 focus:outline-none transition-all ${
-                      error ? "border-red-500/50 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
-                    }`}
+                    className="w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none transition-all"
+                    style={{
+                      background: "var(--t-input)",
+                      border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "var(--t-linei)"}`,
+                      color: "var(--t-fg)",
+                    }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: "var(--t-fg30)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-fg60)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--t-fg30)"; }}
                   >
                     {showPassword ? (
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -496,8 +545,8 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
               </Button>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-white/8 text-center">
-              <p className="text-white/30 text-xs">
+            <div className="mt-6 pt-5 text-center" style={{ borderTop: "0.5px solid var(--t-linef)" }}>
+              <p className="text-xs" style={{ color: "var(--t-fg30)" }}>
                 Don't have an account?{" "}
                 <button
                   onClick={() => { setShowLogin(false); router.push("/pages/AccountCreationPage"); }}

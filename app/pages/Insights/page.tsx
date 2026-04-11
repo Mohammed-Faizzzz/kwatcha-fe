@@ -34,7 +34,7 @@ const UPDATE_TYPE_COLORS: Record<string, string> = {
 };
 
 function typeColor(type: string) {
-  return UPDATE_TYPE_COLORS[type] ?? "bg-white/5 text-white/40 border-white/10";
+  return UPDATE_TYPE_COLORS[type] ?? "bg-t-input text-t-fg40 border-t-linei";
 }
 
 function buildData() {
@@ -108,10 +108,10 @@ export default function InsightsPage() {
 
   return (
     <div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen bg-t-bg text-t-fg"
       style={{
         backgroundImage:
-          "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)",
+          "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, var(--t-grad2) 0%, transparent 60%)",
       }}
     >
       <Navbar tickerItems={tickerItems} />
@@ -125,37 +125,37 @@ export default function InsightsPage() {
               Msika wa Kampani
             </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">Market Insights</h1>
-          <p className="text-white/40 text-sm">
+          <h1 className="text-4xl md:text-5xl font-bold text-t-fg mb-3">Market Insights</h1>
+          <p className="text-t-fg40 text-sm">
             Latest news, trading updates, and announcements from MSE-listed companies.
           </p>
         </div>
 
         {/* Stats row */}
         <div className="flex flex-wrap gap-4 mb-10">
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl px-6 py-4 flex items-center gap-4">
+          <div className="bg-t-card border border-t-line rounded-2xl px-6 py-4 flex items-center gap-4">
             <Newspaper size={18} className="text-blue-400/50" />
             <div>
-              <p className="text-white/30 text-xs uppercase tracking-widest">News Articles</p>
-              <p className="text-2xl font-bold text-white">{ALL_ARTICLES.length}</p>
+              <p className="text-t-fg30 text-xs uppercase tracking-widest">News Articles</p>
+              <p className="text-2xl font-bold text-t-fg">{ALL_ARTICLES.length}</p>
             </div>
           </div>
-          <div className="bg-white/[0.03] border border-white/8 rounded-2xl px-6 py-4 flex items-center gap-4">
+          <div className="bg-t-card border border-t-line rounded-2xl px-6 py-4 flex items-center gap-4">
             <Bell size={18} className="text-blue-400/50" />
             <div>
-              <p className="text-white/30 text-xs uppercase tracking-widest">Trading Updates</p>
-              <p className="text-2xl font-bold text-white">{ALL_UPDATES.length}</p>
+              <p className="text-t-fg30 text-xs uppercase tracking-widest">Trading Updates</p>
+              <p className="text-2xl font-bold text-t-fg">{ALL_UPDATES.length}</p>
             </div>
           </div>
         </div>
 
         {/* Tab bar + search */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-t-input rounded-xl p-1">
             <button
               onClick={() => setTab("news")}
               className={`px-5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                tab === "news" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60"
+                tab === "news" ? "bg-t-hover text-t-fg" : "text-t-fg30 hover:text-t-fg60"
               }`}
             >
               <Newspaper size={12} /> News
@@ -163,7 +163,7 @@ export default function InsightsPage() {
             <button
               onClick={() => setTab("updates")}
               className={`px-5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                tab === "updates" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60"
+                tab === "updates" ? "bg-t-hover text-t-fg" : "text-t-fg30 hover:text-t-fg60"
               }`}
             >
               <Bell size={12} /> Updates
@@ -175,7 +175,7 @@ export default function InsightsPage() {
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-white/5 border border-white/8 rounded-xl px-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/40 transition-colors w-48"
+            className="bg-t-input border border-t-line rounded-xl px-4 py-2 text-sm text-t-fg placeholder:text-t-fg20 focus:outline-none focus:border-blue-500/40 transition-colors w-48"
           />
         </div>
 
@@ -189,7 +189,7 @@ export default function InsightsPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                   updateType === t
                     ? "bg-blue-600/30 border-blue-500/40 text-blue-300"
-                    : "bg-white/5 border-white/8 text-white/40 hover:text-white/70"
+                    : "bg-t-input border-t-line text-t-fg40 hover:text-t-fg70"
                 }`}
               >
                 {t}
@@ -202,7 +202,7 @@ export default function InsightsPage() {
         {tab === "news" && (
           <div className="space-y-3">
             {filteredArticles.length === 0 ? (
-              <p className="text-white/20 text-sm text-center py-16">No articles found.</p>
+              <p className="text-t-fg20 text-sm text-center py-16">No articles found.</p>
             ) : (
               filteredArticles.map((a, i) => (
                 <a
@@ -210,7 +210,7 @@ export default function InsightsPage() {
                   href={a.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-start justify-between gap-4 bg-white/[0.03] border border-white/8 hover:border-blue-500/25 hover:bg-white/[0.05] rounded-2xl p-5 transition-all"
+                  className="group flex items-start justify-between gap-4 bg-t-card border border-t-line hover:border-blue-500/25 hover:bg-t-hover rounded-2xl p-5 transition-all"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
@@ -220,17 +220,17 @@ export default function InsightsPage() {
                       >
                         {a.ticker}
                       </button>
-                      <span className="text-white/15 text-xs">·</span>
-                      <span className="text-white/25 text-xs">{a.sector}</span>
+                      <span className="text-t-fg15 text-xs">·</span>
+                      <span className="text-t-fg25 text-xs">{a.sector}</span>
                     </div>
-                    <p className="text-white/85 text-sm font-semibold group-hover:text-white transition-colors leading-snug">
+                    <p className="text-t-fg80 text-sm font-semibold group-hover:text-t-fg transition-colors leading-snug">
                       {a.title}
                     </p>
-                    <p className="text-white/25 text-xs mt-1.5">
+                    <p className="text-t-fg25 text-xs mt-1.5">
                       {new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
-                  <ArrowUpRight size={16} className="text-white/20 group-hover:text-blue-400/60 transition-colors flex-shrink-0 mt-1" />
+                  <ArrowUpRight size={16} className="text-t-fg20 group-hover:text-blue-400/60 transition-colors flex-shrink-0 mt-1" />
                 </a>
               ))
             )}
@@ -241,32 +241,32 @@ export default function InsightsPage() {
         {tab === "updates" && (
           <div className="space-y-3">
             {filteredUpdates.length === 0 ? (
-              <p className="text-white/20 text-sm text-center py-16">No updates found.</p>
+              <p className="text-t-fg20 text-sm text-center py-16">No updates found.</p>
             ) : (
               filteredUpdates.map((u, i) => (
                 <div
                   key={i}
                   onClick={() => router.push(`/pages/${u.ticker}`)}
-                  className="group flex items-start justify-between gap-4 bg-white/[0.03] border border-white/8 hover:border-blue-500/25 hover:bg-white/[0.05] rounded-2xl p-5 transition-all cursor-pointer"
+                  className="group flex items-start justify-between gap-4 bg-t-card border border-t-line hover:border-blue-500/25 hover:bg-t-hover rounded-2xl p-5 transition-all cursor-pointer"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="text-xs font-bold text-blue-400/70 tracking-widest uppercase">
                         {u.ticker}
                       </span>
-                      <span className="text-white/15 text-xs">·</span>
+                      <span className="text-t-fg15 text-xs">·</span>
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${typeColor(u.type)}`}>
                         {u.type}
                       </span>
                     </div>
-                    <p className="text-white/85 text-sm font-semibold group-hover:text-white transition-colors leading-snug">
+                    <p className="text-t-fg80 text-sm font-semibold group-hover:text-t-fg transition-colors leading-snug">
                       {u.title}
                     </p>
-                    <p className="text-white/25 text-xs mt-1.5">
+                    <p className="text-t-fg25 text-xs mt-1.5">
                       {new Date(u.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
                   </div>
-                  <ChevronRight size={16} className="text-white/20 group-hover:text-blue-400/60 transition-colors flex-shrink-0 mt-1" />
+                  <ChevronRight size={16} className="text-t-fg20 group-hover:text-blue-400/60 transition-colors flex-shrink-0 mt-1" />
                 </div>
               ))
             )}

@@ -70,13 +70,13 @@ const PasswordStrength = ({ password }: { password: string }) => {
     <div className="mt-2">
       <div className="flex gap-1 mb-2">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= score ? barColors[score] : "bg-white/10"}`} />
+          <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= score ? barColors[score] : "bg-t-hover"}`} />
         ))}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           {checks.map((c) => (
-            <span key={c.label} className={`text-xs flex items-center gap-1 ${c.pass ? "text-green-400/70" : "text-white/25"}`}>
+            <span key={c.label} className={`text-xs flex items-center gap-1 ${c.pass ? "text-green-400/70" : "text-t-fg25"}`}>
               {c.pass ? "✓" : "○"} {c.label}
             </span>
           ))}
@@ -113,8 +113,8 @@ const InputField = ({
         value={form[field] ?? ""}
         onChange={(e) => update(field, e.target.value)}
         placeholder={placeholder}
-        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${
-          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
+        className={`bg-t-input border rounded-lg px-4 py-2.5 text-t-fg text-sm placeholder-white/20 focus:outline-none focus:bg-t-input transition-all ${
+          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-t-linei focus:border-blue-500/60"
         }`}
       />
       <ErrorMsg field={field} />
@@ -134,12 +134,12 @@ const SelectField = ({
       <select
         value={form[field] ?? ""}
         onChange={(e) => update(field, e.target.value)}
-        className={`bg-white/5 border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none transition-all appearance-none ${
-          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"
+        className={`bg-t-input border rounded-lg px-4 py-2.5 text-t-fg text-sm focus:outline-none transition-all appearance-none ${
+          errors[field] ? "border-red-500/60 focus:border-red-400" : "border-t-linei focus:border-blue-500/60"
         }`}
       >
-        <option value="" className="bg-gray-900">Select...</option>
-        {options.map((o) => <option key={o} value={o} className="bg-gray-900">{o}</option>)}
+        <option value="" className="bg-t-bg">Select...</option>
+        {options.map((o) => <option key={o} value={o} className="bg-t-bg">{o}</option>)}
       </select>
       <ErrorMsg field={field} />
     </div>
@@ -160,8 +160,8 @@ const GenderToggle = ({ field, errorField }: { field: string; errorField: string
               form[field] === g
                 ? "border-blue-500/60 bg-blue-500/15 text-blue-300"
                 : errors[errorField]
-                ? "border-red-500/40 bg-white/3 text-white/40"
-                : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"
+                ? "border-red-500/40 bg-t-card text-t-fg40"
+                : "border-t-linei bg-t-input text-t-fg40 hover:border-t-line"
             }`}>
             {g}
           </button>
@@ -426,11 +426,11 @@ export default function AccountCreationPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-white/80 text-xs font-medium truncate max-w-[160px]">{file.name}</p>
-                <p className="text-white/30 text-xs">{formatSize(file.size)}</p>
+                <p className="text-t-fg80 text-xs font-medium truncate max-w-[160px]">{file.name}</p>
+                <p className="text-t-fg30 text-xs">{formatSize(file.size)}</p>
               </div>
             </div>
-            <button type="button" onClick={() => removeFile(docKey)} className="text-white/30 hover:text-red-400 transition-colors ml-2">
+            <button type="button" onClick={() => removeFile(docKey)} className="text-t-fg30 hover:text-red-400 transition-colors ml-2">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -439,13 +439,13 @@ export default function AccountCreationPage() {
         ) : (
           <button type="button" onClick={() => fileRefs[docKey].current?.click()}
             className={`rounded-lg border-2 border-dashed px-4 py-5 text-center transition-all hover:border-blue-500/40 hover:bg-blue-500/5 ${
-              errors[docKey] ? "border-red-500/40 bg-red-500/5" : "border-white/10 bg-white/3"
+              errors[docKey] ? "border-red-500/40 bg-red-500/5" : "border-t-linei bg-t-card"
             }`}>
-            <svg className={`w-6 h-6 mx-auto mb-2 ${errors[docKey] ? "text-red-400/50" : "text-white/20"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={`w-6 h-6 mx-auto mb-2 ${errors[docKey] ? "text-red-400/50" : "text-t-fg20"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            <p className="text-white/40 text-xs">Tap to upload</p>
-            {hint && <p className="text-white/20 text-xs mt-1">{hint}</p>}
+            <p className="text-t-fg40 text-xs">Tap to upload</p>
+            {hint && <p className="text-t-fg20 text-xs mt-1">{hint}</p>}
           </button>
         )}
         <ErrorMsg field={docKey} />
@@ -455,21 +455,21 @@ export default function AccountCreationPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4" style={{ backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(29,78,216,0.1) 0%, transparent 60%)" }}>
+      <div className="min-h-screen bg-t-bg flex items-center justify-center px-4" style={{ backgroundImage: "radial-gradient(ellipse at 50% 0%, var(--t-grad1) 0%, transparent 60%)" }}>
         <div className="text-center max-w-md">
           <div className="w-20 h-20 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">Application Submitted</h2>
-          <p className="text-white/50 text-sm leading-relaxed mb-2">Your CSD Securities Account application has been received.</p>
-          <p className="text-white/40 text-sm leading-relaxed mb-8">
+          <h2 className="text-3xl font-bold text-t-fg mb-3">Application Submitted</h2>
+          <p className="text-t-fg50 text-sm leading-relaxed mb-2">Your CSD Securities Account application has been received.</p>
+          <p className="text-t-fg40 text-sm leading-relaxed mb-8">
             Your trading account username is <span className="text-blue-300 font-semibold">{form.username}</span>. You will be notified via <span className="text-blue-300">{form.email}</span> once your account is approved.
           </p>
           <Button
             onClick={() => router.push("/")}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2 mx-auto"
+            className="border border-t-linei bg-t-input hover:bg-t-hover text-t-fg text-sm px-6 py-2 rounded-lg transition-all flex items-center gap-2 mx-auto"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Back to Home
@@ -481,7 +481,7 @@ export default function AccountCreationPage() {
 
   return (
     <FormContext.Provider value={{ form: form as Record<string, string>, update, errors }}>
-    <div className="min-h-screen bg-black text-white" style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, rgba(29,78,216,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%)" }}>
+    <div className="min-h-screen bg-t-bg text-t-fg" style={{ backgroundImage: "radial-gradient(ellipse at 20% 0%, var(--t-grad1) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, var(--t-grad2) 0%, transparent 60%)" }}>
 
       {/* Hidden file inputs — live at the top level so refs are always stable */}
       {FILE_KEYS.map((key) => (
@@ -496,9 +496,9 @@ export default function AccountCreationPage() {
       ))}
 
       {/* Header */}
-      <div className="border-b border-white/5 px-4 md:px-6 py-5 flex items-center justify-between">
-        <a href="/" className="text-xl font-bold text-white">Msika Wa Kampani</a>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+      <div className="border-b border-t-linef px-4 md:px-6 py-5 flex items-center justify-between">
+        <a href="/" className="text-xl font-bold text-t-fg">Msika Wa Kampani</a>
+        <div className="flex items-center gap-2 text-xs text-t-fg40">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
@@ -510,10 +510,10 @@ export default function AccountCreationPage() {
         {/* Title */}
         <div className="mb-10">
           <p className="text-xs font-bold tracking-[0.3em] text-blue-400/70 uppercase mb-2">CSD Form F1</p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-            Securities Account<br /><span className="text-white/40">Opening Form</span>
+          <h1 className="text-3xl md:text-4xl font-bold text-t-fg leading-tight">
+            Securities Account<br /><span className="text-t-fg40">Opening Form</span>
           </h1>
-          <p className="text-white/40 text-sm mt-3">Central Securities Depository — Reserve Bank of Malawi</p>
+          <p className="text-t-fg40 text-sm mt-3">Central Securities Depository — Reserve Bank of Malawi</p>
         </div>
 
         {/* Step Indicator */}
@@ -524,7 +524,7 @@ export default function AccountCreationPage() {
                 <div className={`w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold transition-all ${
                   currentStep === step.id ? "border-blue-500 bg-blue-500/20 text-blue-300"
                   : currentStep > step.id ? "border-blue-500/50 bg-blue-500/10 text-blue-400/60"
-                  : "border-white/10 bg-white/5 text-white/20"
+                  : "border-t-linei bg-t-input text-t-fg20"
                 }`}>
                   {currentStep > step.id ? (
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -532,32 +532,32 @@ export default function AccountCreationPage() {
                     </svg>
                   ) : step.id}
                 </div>
-                <span className={`text-xs hidden md:block whitespace-nowrap ${currentStep === step.id ? "text-blue-300" : "text-white/20"}`}>{step.label}</span>
+                <span className={`text-xs hidden md:block whitespace-nowrap ${currentStep === step.id ? "text-blue-300" : "text-t-fg20"}`}>{step.label}</span>
               </button>
-              {i < steps.length - 1 && <div className={`flex-1 h-px mx-2 ${currentStep > step.id ? "bg-blue-500/30" : "bg-white/5"}`} />}
+              {i < steps.length - 1 && <div className={`flex-1 h-px mx-2 ${currentStep > step.id ? "bg-blue-500/30" : "bg-t-input"}`} />}
             </div>
           ))}
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 md:p-10 backdrop-blur-sm">
+        <div className="bg-t-card border border-t-line rounded-2xl p-6 md:p-10 backdrop-blur-sm">
 
           {/* STEP 1 */}
           {currentStep === 1 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Account Type</h2>
-              <p className="text-white/40 text-sm mb-8">Select the type of account you wish to open.</p>
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Account Type</h2>
+              <p className="text-t-fg40 text-sm mb-8">Select the type of account you wish to open.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {(["individual", "joint", "company"] as ApplicantType[]).map((type) => (
                   <button key={type} type="button" onClick={() => setApplicantType(type)}
-                    className={`rounded-xl border p-5 text-left transition-all ${applicantType === type ? "border-blue-500/60 bg-blue-500/10" : "border-white/8 bg-white/3 hover:border-white/20"}`}>
+                    className={`rounded-xl border p-5 text-left transition-all ${applicantType === type ? "border-blue-500/60 bg-blue-500/10" : "border-t-line bg-t-card hover:border-t-linei"}`}>
                     <div className={`text-2xl mb-3 ${applicantType === type ? "opacity-100" : "opacity-40"}`}>
                       {type === "individual" ? "👤" : type === "joint" ? "👥" : "🏢"}
                     </div>
-                    <div className={`font-semibold text-sm ${applicantType === type ? "text-blue-300" : "text-white/60"}`}>
+                    <div className={`font-semibold text-sm ${applicantType === type ? "text-blue-300" : "text-t-fg60"}`}>
                       {type === "joint" ? "Joint Applicant" : type === "company" ? "Company / Institution" : "Individual"}
                     </div>
-                    <div className="text-xs text-white/30 mt-1">
+                    <div className="text-xs text-t-fg30 mt-1">
                       {type === "individual" ? "Personal securities account" : type === "joint" ? "Shared account with co-applicant" : "Corporate or institutional account"}
                     </div>
                   </button>
@@ -575,8 +575,8 @@ export default function AccountCreationPage() {
           {/* STEP 2 */}
           {currentStep === 2 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Applicant Details</h2>
-              <p className="text-white/40 text-sm mb-8">All fields marked <span className="text-red-400">*</span> are mandatory.</p>
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Applicant Details</h2>
+              <p className="text-t-fg40 text-sm mb-8">All fields marked <span className="text-red-400">*</span> are mandatory.</p>
 
               {(applicantType === "individual" || applicantType === "joint") && (
                 <>
@@ -637,14 +637,14 @@ export default function AccountCreationPage() {
           {/* STEP 3 */}
           {currentStep === 3 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Bank & Broker Details</h2>
-              <p className="text-white/40 text-sm mb-8">These details are used for dividend disbursements and broker mandate.</p>
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Bank & Broker Details</h2>
+              <p className="text-t-fg40 text-sm mb-8">These details are used for dividend disbursements and broker mandate.</p>
 
               <SectionHeader title="Stockbrokers Mandate" />
-              <div className="rounded-xl border border-white/8 bg-white/3 p-5 text-sm text-white/60 leading-relaxed space-y-3">
+              <div className="rounded-xl border border-t-line bg-t-card p-5 text-sm text-t-fg60 leading-relaxed space-y-3">
                 <p>I/We hereby confirm that I/we appoint <span className="text-blue-300 font-semibold">XYZ Capital Pte Ltd</span> to manage my/our CSD Securities Account on our behalf, in accordance with the Terms and Conditions of the Depository in force from time to time.</p>
                 <p>I/We understand that <span className="text-blue-300 font-semibold">XYZ Capital Pte Ltd</span> will be responsible for execution of our trade orders at the Malawi Stock Exchange (MSE) and recording them on the CSD System, while RBM or its agents will be responsible for managing both our cash & scrip settlements.</p>
-                <p>I/We understand that CSD settlements once confirmed are <span className="text-white/80 font-semibold">irrevocable and irreversible</span> and we indemnify XYZ Capital Pte Ltd against any losses arising as a result of these transactions.</p>
+                <p>I/We understand that CSD settlements once confirmed are <span className="text-t-fg80 font-semibold">irrevocable and irreversible</span> and we indemnify XYZ Capital Pte Ltd against any losses arising as a result of these transactions.</p>
               </div>
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -657,8 +657,8 @@ export default function AccountCreationPage() {
           {/* STEP 4: Documents */}
           {currentStep === 4 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Upload Documents</h2>
-              <p className="text-white/40 text-sm mb-8">
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Upload Documents</h2>
+              <p className="text-t-fg40 text-sm mb-8">
                 Upload clear, legible copies. Fields marked <span className="text-red-400">*</span> are required to proceed.
               </p>
 
@@ -685,8 +685,8 @@ export default function AccountCreationPage() {
           {/* STEP 5: Credentials */}
           {currentStep === 5 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Create Login Credentials</h2>
-              <p className="text-white/40 text-sm mb-8">Set up your username and password to access MSE Trade once your account is approved.</p>
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Create Login Credentials</h2>
+              <p className="text-t-fg40 text-sm mb-8">Set up your username and password to access MSE Trade once your account is approved.</p>
 
               <SectionHeader title="Account Credentials" />
               <div className="space-y-5">
@@ -695,16 +695,16 @@ export default function AccountCreationPage() {
                     Username <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-sm select-none">@</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-t-fg20 text-sm select-none">@</span>
                     <input
                       type="text"
                       value={form.username}
                       onChange={(e) => update("username", e.target.value)}
                       placeholder="your_username"
-                      className={`w-full bg-white/5 border rounded-lg pl-8 pr-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${errors.username ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"}`}
+                      className={`w-full bg-t-input border rounded-lg pl-8 pr-4 py-2.5 text-t-fg text-sm placeholder-white/20 focus:outline-none focus:bg-t-input transition-all ${errors.username ? "border-red-500/60 focus:border-red-400" : "border-t-linei focus:border-blue-500/60"}`}
                     />
                   </div>
-                  <p className="text-white/25 text-xs mt-0.5">Letters, numbers, and underscores only. Min 4 characters.</p>
+                  <p className="text-t-fg25 text-xs mt-0.5">Letters, numbers, and underscores only. Min 4 characters.</p>
                   <ErrorMsg field="username" />
                 </div>
 
@@ -718,9 +718,9 @@ export default function AccountCreationPage() {
                       value={form.password}
                       onChange={(e) => update("password", e.target.value)}
                       placeholder="Create a strong password"
-                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 pr-10 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${errors.password ? "border-red-500/60 focus:border-red-400" : "border-white/10 focus:border-blue-500/60"}`}
+                      className={`w-full bg-t-input border rounded-lg px-4 py-2.5 pr-10 text-t-fg text-sm placeholder-white/20 focus:outline-none focus:bg-t-input transition-all ${errors.password ? "border-red-500/60 focus:border-red-400" : "border-t-linei focus:border-blue-500/60"}`}
                     />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-t-fg30 hover:text-t-fg60 transition-colors">
                       {showPassword
                         ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
                         : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -741,13 +741,13 @@ export default function AccountCreationPage() {
                       value={form.confirmPassword}
                       onChange={(e) => update("confirmPassword", e.target.value)}
                       placeholder="Re-enter your password"
-                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 pr-10 text-white text-sm placeholder-white/20 focus:outline-none focus:bg-white/8 transition-all ${
+                      className={`w-full bg-t-input border rounded-lg px-4 py-2.5 pr-10 text-t-fg text-sm placeholder-white/20 focus:outline-none focus:bg-t-input transition-all ${
                         errors.confirmPassword ? "border-red-500/60 focus:border-red-400"
                         : form.confirmPassword && form.password === form.confirmPassword ? "border-green-500/50"
-                        : "border-white/10 focus:border-blue-500/60"
+                        : "border-t-linei focus:border-blue-500/60"
                       }`}
                     />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-t-fg30 hover:text-t-fg60 transition-colors">
                       {showConfirmPassword
                         ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
                         : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -763,9 +763,9 @@ export default function AccountCreationPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 rounded-xl bg-white/3 border border-white/8">
-                <p className="text-xs text-white/40 leading-relaxed">
-                  <span className="text-white/60 font-semibold">Note: </span>
+              <div className="mt-6 p-4 rounded-xl bg-t-card border border-t-line">
+                <p className="text-xs text-t-fg40 leading-relaxed">
+                  <span className="text-t-fg60 font-semibold">Note: </span>
                   Your login will only be activated after your application is reviewed and approved. A confirmation email will be sent to <span className="text-blue-300">{form.email || "your registered email"}</span>.
                 </p>
               </div>
@@ -775,10 +775,10 @@ export default function AccountCreationPage() {
           {/* STEP 6: Declaration */}
           {currentStep === 6 && (
             <div>
-              <h2 className="text-xl font-semibold text-white mb-1">Declaration & Submission</h2>
-              <p className="text-white/40 text-sm mb-8">Please read and agree to all terms before submitting.</p>
+              <h2 className="text-xl font-semibold text-t-fg mb-1">Declaration & Submission</h2>
+              <p className="text-t-fg40 text-sm mb-8">Please read and agree to all terms before submitting.</p>
 
-              <div className="rounded-xl border border-white/10 bg-white/3 p-5 space-y-4 text-sm text-white/55 leading-relaxed max-h-72 overflow-y-auto">
+              <div className="rounded-xl border border-t-linei bg-t-card p-5 space-y-4 text-sm text-t-fg50 leading-relaxed max-h-72 overflow-y-auto">
                 {[
                   "I/We hereby request you to open and maintain a Securities Account in the Central Securities Depository (CSD) in my/our name(s).",
                   "I/We hereby represent and warrant that I/We have good title to such securities that may be held in my/our Securities Account from time to time.",
@@ -794,16 +794,16 @@ export default function AccountCreationPage() {
                 ))}
               </div>
 
-              <button type="button" onClick={() => setAgreed(!agreed)} className="mt-6 flex items-center gap-3 text-sm text-white/70 hover:text-white transition-colors">
-                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all ${agreed ? "border-blue-500 bg-blue-500" : "border-white/20 bg-white/5"}`}>
-                  {agreed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+              <button type="button" onClick={() => setAgreed(!agreed)} className="mt-6 flex items-center gap-3 text-sm text-t-fg70 hover:text-t-fg transition-colors">
+                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all ${agreed ? "border-blue-500 bg-blue-500" : "border-t-linei bg-t-input"}`}>
+                  {agreed && <svg className="w-3 h-3 text-t-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                 </div>
                 I/We have read, understood, and agree to all the declarations above.
               </button>
-              {!agreed && <p className="text-xs text-white/30 mt-2 ml-8">You must agree before submitting.</p>}
+              {!agreed && <p className="text-xs text-t-fg30 mt-2 ml-8">You must agree before submitting.</p>}
 
-              <div className="mt-6 rounded-xl border border-white/8 bg-white/3 p-5">
-                <p className="text-xs font-bold tracking-widest uppercase text-white/30 mb-4">Application Summary</p>
+              <div className="mt-6 rounded-xl border border-t-line bg-t-card p-5">
+                <p className="text-xs font-bold tracking-widest uppercase text-t-fg30 mb-4">Application Summary</p>
                 <div className="grid grid-cols-2 gap-y-3 text-sm">
                   {[
                     ["Account Type", applicantType === "individual" ? "Individual" : applicantType === "joint" ? "Joint" : "Company/Institution"],
@@ -816,8 +816,8 @@ export default function AccountCreationPage() {
                     ["Broker", "XYZ Capital Pte Ltd"],
                   ].map(([k, v]) => (
                     <div key={k}>
-                      <p className="text-white/30 text-xs">{k}</p>
-                      <p className="text-white/80 font-medium truncate">{v}</p>
+                      <p className="text-t-fg30 text-xs">{k}</p>
+                      <p className="text-t-fg80 font-medium truncate">{v}</p>
                     </div>
                   ))}
                 </div>
@@ -843,7 +843,7 @@ export default function AccountCreationPage() {
             type="button"
             onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1)) as Step)}
             disabled={currentStep === 1}
-            className="border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 text-sm px-6 py-2 rounded-lg transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+            className="border border-t-linei bg-t-input hover:bg-t-hover text-t-fg70 text-sm px-6 py-2 rounded-lg transition-all disabled:opacity-20 disabled:cursor-not-allowed"
           >
             ← Back
           </Button>
@@ -868,7 +868,7 @@ export default function AccountCreationPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-white/20 mt-8">CSD Form F1 · Reserve Bank of Malawi · Administered by XYZ Capital Pte Ltd</p>
+        <p className="text-center text-xs text-t-fg20 mt-8">CSD Form F1 · Reserve Bank of Malawi · Administered by XYZ Capital Pte Ltd</p>
       </div>
     </div>
     </FormContext.Provider>
