@@ -110,7 +110,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
 
           {/* Nav links — hidden on mobile */}
           <div className="hidden md:flex" style={{ gap: "4px" }}>
-            {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : [])].map(
+            {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : []), "About"].map(
               (section) => (
                 <button
                   key={section}
@@ -274,7 +274,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
               borderBottom: "0.5px solid rgba(255,255,255,0.08)",
             }}
           >
-            {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : [])].map((section) => (
+            {["Market", "Companies", "Insights", ...(loggedInUser ? ["Portfolio"] : []), "About"].map((section) => (
               <button
                 key={section}
                 onClick={() => { router.push(`/pages/${section}`); setMenuOpen(false); }}
