@@ -642,9 +642,9 @@ export default function AccountCreationPage() {
 
               <SectionHeader title="Stockbrokers Mandate" />
               <div className="rounded-xl border border-white/8 bg-white/3 p-5 text-sm text-white/60 leading-relaxed space-y-3">
-                <p>I/We hereby confirm that I/we appoint <span className="text-blue-300 font-semibold">XYZ Capital Pte Ltd</span> to manage my/our CSD Securities Account on our behalf, in accordance with the Terms and Conditions of the Depository in force from time to time.</p>
-                <p>I/We understand that <span className="text-blue-300 font-semibold">XYZ Capital Pte Ltd</span> will be responsible for execution of our trade orders at the Malawi Stock Exchange (MSE) and recording them on the CSD System, while RBM or its agents will be responsible for managing both our cash & scrip settlements.</p>
-                <p>I/We understand that CSD settlements once confirmed are <span className="text-white/80 font-semibold">irrevocable and irreversible</span> and we indemnify XYZ Capital Pte Ltd against any losses arising as a result of these transactions.</p>
+                <p>I/We hereby confirm that I/we appoint <span className="text-blue-300 font-semibold">Msika Wa Kampani Pte Ltd</span> to manage my/our CSD Securities Account on our behalf, in accordance with the Terms and Conditions of the Depository in force from time to time.</p>
+                <p>I/We understand that <span className="text-blue-300 font-semibold">Msika Wa Kampani Pte Ltd</span> will be responsible for execution of our trade orders at the Malawi Stock Exchange (MSE) and recording them on the CSD System, while RBM or its agents will be responsible for managing both our cash & scrip settlements.</p>
+                <p>I/We understand that CSD settlements once confirmed are <span className="text-white/80 font-semibold">irrevocable and irreversible</span> and we indemnify Msika Wa Kampani Pte Ltd against any losses arising as a result of these transactions.</p>
               </div>
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -813,7 +813,7 @@ export default function AccountCreationPage() {
                     ["Bank", form.bankName || "—"],
                     ["Username", form.username || "—"],
                     ["Documents", `${Object.values(uploadedFiles).filter(Boolean).length} uploaded`],
-                    ["Broker", "XYZ Capital Pte Ltd"],
+                    ["Broker", "Msika Wa Kampani Pte Ltd"],
                   ].map(([k, v]) => (
                     <div key={k}>
                       <p className="text-white/30 text-xs">{k}</p>
@@ -868,7 +868,7 @@ export default function AccountCreationPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-white/20 mt-8">CSD Form F1 · Reserve Bank of Malawi · Administered by XYZ Capital Pte Ltd</p>
+        <p className="text-center text-xs text-white/20 mt-8">CSD Form F1 · Reserve Bank of Malawi · Administered by Msika Wa Kampani Pte Ltd</p>
       </div>
     </div>
     </FormContext.Provider>
