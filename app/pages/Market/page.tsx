@@ -15,7 +15,41 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
 import { API_BASE } from "@/lib/constants";
-import type { StockData, MarketResponse, MoversResponse } from "@/types/market";
+import type { StockData, MarketResponse, MoversResponse, IndicesResponse, DividendsResponse } from "@/types/market";
+import TickerLogo from "@/components/TickerLogo";
+
+const MOCK_INDICES: IndicesResponse["indices"] = {
+  MASI: { name: "Malawi All Shares Index", value: 550034.70, change: -23135.85, pct_change: -0.0404 },
+  DSI:  { name: "Domestic Shares Index",   value: 398503.56, change: -4335.70,  pct_change: -0.0108 },
+  FSI:  { name: "Foreign Shares Index",    value: 115090.13, change: -19811.26, pct_change: -0.1469 },
+};
+
+const MOCK_DIVIDENDS: DividendsResponse["dividends"] = [
+  {
+    ticker: "STANDARD",
+    payment_date: "Fri, 17th Apr 2026",
+    amount_per_share: 14.23,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+  {
+    ticker: "NITL",
+    payment_date: "Fri, 17th Apr 2026",
+    amount_per_share: 6.00,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+  {
+    ticker: "NICO",
+    payment_date: "Mon, 20th Apr 2026",
+    amount_per_share: 20.00,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+];
 
 type SortKey = "name" | "close" | "open" | "change" | "pct_change" | "volume" | "turnover";
 type SortDir = "asc" | "desc";
@@ -24,6 +58,8 @@ export default function MarketPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [movers, setMovers] = useState<MoversResponse | null>(null);
+  const [indices, setIndices] = useState<IndicesResponse["indices"] | null>(null);
+  const [dividends, setDividends] = useState<DividendsResponse["dividends"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -48,7 +84,17 @@ export default function MarketPage() {
       }
     };
 
+    const fetchSupplemental = async () => {
+      const [indicesRes, dividendsRes] = await Promise.allSettled([
+        apiFetch<IndicesResponse>(`${API_BASE}/indices`),
+        apiFetch<DividendsResponse>(`${API_BASE}/dividends`),
+      ]);
+      setIndices(indicesRes.status === "fulfilled" ? indicesRes.value.indices : MOCK_INDICES);
+      setDividends(dividendsRes.status === "fulfilled" ? dividendsRes.value.dividends : MOCK_DIVIDENDS);
+    };
+
     fetchData();
+    fetchSupplemental();
     const interval = setInterval(fetchData, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -147,6 +193,50 @@ export default function MarketPage() {
           </div>
         )}
 
+        {/* ── Indices ── */}
+        {indices && (
+          <div className="mb-6">
+            <p className="text-[10px] font-bold tracking-[0.2em] text-blue-400/70 uppercase mb-3">Market Indices</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {(["MASI", "DSI", "FSI"] as const).map((key) => {
+                const idx = indices[key];
+                const isNeg = idx.pct_change < 0;
+                const fullNames: Record<string, string> = {
+                  MASI: "Malawi All Shares Index",
+                  DSI: "Domestic Shares Index",
+                  FSI: "Foreign Shares Index",
+                };
+                return (
+                  <div key={key} className="bg-white/[0.03] border border-white/8 rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="text-2xl font-black text-white tracking-tight">{key}</p>
+                        <p className="text-white/30 text-xs mt-0.5">{fullNames[key]}</p>
+                      </div>
+                      <span
+                        className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                          isNeg
+                            ? "bg-red-500/10 text-red-400 border border-red-500/15"
+                            : "bg-green-500/10 text-green-400 border border-green-500/15"
+                        }`}
+                      >
+                        {isNeg ? "▼" : "▲"} {Math.abs(idx.pct_change * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                    <p className="text-white/25 text-[10px] uppercase tracking-widest mb-0.5">Value</p>
+                    <p className="text-xl font-bold text-white">
+                      {Number(idx.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className={`text-xs mt-1 font-medium ${isNeg ? "text-red-400/70" : "text-green-400/70"}`}>
+                      {isNeg ? "▼" : "▲"} {isNeg ? "" : "+"}{Number(idx.change).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Summary stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5">
@@ -193,7 +283,7 @@ export default function MarketPage() {
                     className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-all group"
                   >
                     <div className="flex items-center gap-3">
-                      <TrendingUp size={14} className="text-green-400/60" />
+                      <TickerLogo ticker={m.ticker} size={32} />
                       <div>
                         <p className="text-white text-sm font-semibold group-hover:text-blue-200 transition-colors">
                           {m.ticker}
@@ -225,7 +315,7 @@ export default function MarketPage() {
                     className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-all group"
                   >
                     <div className="flex items-center gap-3">
-                      <TrendingDown size={14} className="text-red-400/60" />
+                      <TickerLogo ticker={m.ticker} size={32} />
                       <div>
                         <p className="text-white text-sm font-semibold group-hover:text-blue-200 transition-colors">
                           {m.ticker}
@@ -242,6 +332,48 @@ export default function MarketPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Upcoming Dividends ── */}
+        {dividends && dividends.length > 0 && (
+          <div className="mb-10">
+            <p className="text-[10px] font-bold tracking-[0.2em] text-blue-400/70 uppercase mb-3">Upcoming Dividends</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dividends.map((d, i) => (
+                <div key={i} className="bg-white/[0.03] border border-white/8 rounded-2xl p-5 backdrop-blur-sm">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <p className="text-white font-bold text-base">{d.ticker}</p>
+                      {d.company_name && (
+                        <p className="text-white/30 text-xs mt-0.5">{d.company_name}</p>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/20 uppercase tracking-wide">
+                      {d.dividend_type}
+                    </span>
+                  </div>
+                  <div className="mb-3">
+                    <p className="text-white/25 text-[10px] uppercase tracking-widest mb-0.5">Amount</p>
+                    <p className="text-white font-bold text-lg">MK {Number(d.amount_per_share).toLocaleString(undefined, { minimumFractionDigits: 2 })}/share</p>
+                  </div>
+                  <div className="space-y-2 border-t border-white/6 pt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Payment Date</span>
+                      <span className="text-white/70 text-xs font-medium">{d.payment_date}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Ex-Dividend Date</span>
+                      <span className="text-orange-300/80 text-xs font-medium">{d.ex_dividend_date}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Last Day to Register</span>
+                      <span className="text-orange-300/80 text-xs font-medium">{d.last_day_to_register}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -325,11 +457,7 @@ export default function MarketPage() {
                         className="grid grid-cols-6 py-3.5 px-1 cursor-pointer hover:bg-white/[0.03] rounded-lg transition-all group"
                       >
                         <div className="col-span-2 flex items-center gap-3">
-                          <div
-                            className={`w-1 h-6 rounded-full flex-shrink-0 ${
-                              isPos ? "bg-green-500/40" : isNeg ? "bg-red-500/40" : "bg-white/10"
-                            }`}
-                          />
+                          <TickerLogo ticker={name} size={28} />
                           <span className="text-white text-sm font-semibold group-hover:text-blue-200 transition-colors">
                             {name}
                           </span>

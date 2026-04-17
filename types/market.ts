@@ -1,3 +1,34 @@
+export interface IndexData {
+  name: string;
+  value: number;
+  change: number;
+  pct_change: number;
+}
+
+export interface IndicesResponse {
+  status: string;
+  indices: {
+    MASI: IndexData;
+    DSI: IndexData;
+    FSI: IndexData;
+  };
+}
+
+export interface DividendEntry {
+  ticker: string;
+  company_name?: string;
+  payment_date: string;
+  amount_per_share: number;
+  dividend_type: string;
+  ex_dividend_date: string;
+  last_day_to_register: string;
+}
+
+export interface DividendsResponse {
+  status: string;
+  dividends: DividendEntry[];
+}
+
 export interface StockData {
   url: string;
   open: string;

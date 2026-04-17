@@ -1,19 +1,55 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { ArrowRight, TrendingUp, BarChart3, TrendingDown, Activity, ChevronsLeftRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, TrendingUp, BarChart3, TrendingDown, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
+import TickerLogo from "@/components/TickerLogo";
 import { API_BASE } from "@/lib/constants";
 import { getMarketStatus } from "@/lib/marketUtils";
-import type { StockData, MarketResponse, MoversResponse } from "@/types/market";
+import type { StockData, MarketResponse, MoversResponse, IndicesResponse, DividendsResponse } from "@/types/market";
+
+const MOCK_INDICES: IndicesResponse["indices"] = {
+  MASI: { name: "Malawi All Shares Index", value: 550034.70, change: -23135.85, pct_change: -0.0404 },
+  DSI:  { name: "Domestic Shares Index",   value: 398503.56, change: -4335.70,  pct_change: -0.0108 },
+  FSI:  { name: "Foreign Shares Index",    value: 115090.13, change: -19811.26, pct_change: -0.1469 },
+};
+
+const MOCK_DIVIDENDS: DividendsResponse["dividends"] = [
+  {
+    ticker: "STANDARD",
+    payment_date: "Fri, 17th Apr 2026",
+    amount_per_share: 14.23,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+  {
+    ticker: "NITL",
+    payment_date: "Fri, 17th Apr 2026",
+    amount_per_share: 6.00,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+  {
+    ticker: "NICO",
+    payment_date: "Mon, 20th Apr 2026",
+    amount_per_share: 20.00,
+    dividend_type: "Interim",
+    ex_dividend_date: "Wed, 8th Apr 2026",
+    last_day_to_register: "Fri, 10th Apr 2026",
+  },
+];
 
 export default function LandingPage() {
   const router = useRouter();
   const [stocks, setStocks] = useState<Record<string, StockData> | null>(null);
   const [movers, setMovers] = useState<MoversResponse | null>(null);
+  const [indices, setIndices] = useState<IndicesResponse["indices"] | null>(null);
+  const [dividends, setDividends] = useState<DividendsResponse["dividends"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +70,17 @@ export default function LandingPage() {
       }
     };
 
+    const fetchSupplemental = async () => {
+      const [indicesRes, dividendsRes] = await Promise.allSettled([
+        apiFetch<IndicesResponse>(`${API_BASE}/indices`),
+        apiFetch<DividendsResponse>(`${API_BASE}/dividends`),
+      ]);
+      setIndices(indicesRes.status === "fulfilled" ? indicesRes.value.indices : MOCK_INDICES);
+      setDividends(dividendsRes.status === "fulfilled" ? dividendsRes.value.dividends : MOCK_DIVIDENDS);
+    };
+
     fetchData();
+    fetchSupplemental();
     const interval = setInterval(fetchData, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -127,6 +173,47 @@ export default function LandingPage() {
           </span>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-blue-500/20" />
         </div>
+
+        {/* ── Indices ── */}
+        {indices && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {(["MASI", "DSI", "FSI"] as const).map((key) => {
+              const idx = indices[key];
+              const isNeg = idx.pct_change < 0;
+              const fullNames: Record<string, string> = {
+                MASI: "Malawi All Shares Index",
+                DSI: "Domestic Shares Index",
+                FSI: "Foreign Shares Index",
+              };
+              return (
+                <div key={key} className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 backdrop-blur-sm">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-3xl font-black text-white tracking-tight">{key}</p>
+                      <p className="text-white/30 text-xs mt-0.5">{fullNames[key]}</p>
+                    </div>
+                    <span
+                      className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                        isNeg
+                          ? "bg-red-500/10 text-red-400 border border-red-500/15"
+                          : "bg-green-500/10 text-green-400 border border-green-500/15"
+                      }`}
+                    >
+                      {isNeg ? "▼" : "▲"} {Math.abs(idx.pct_change * 100).toFixed(2)}%
+                    </span>
+                  </div>
+                  <p className="text-white/25 text-[10px] uppercase tracking-widest mb-1">Value</p>
+                  <p className="text-2xl font-bold text-white">
+                    {Number(idx.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                  <p className={`text-xs mt-1 font-medium ${isNeg ? "text-red-400/70" : "text-green-400/70"}`}>
+                    {isNeg ? "▼" : "▲"} {isNeg ? "" : "+"}{Number(idx.change).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Market Status + Breadth */}
@@ -230,13 +317,14 @@ export default function LandingPage() {
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 hover:bg-green-500/[0.06] group"
                 >
                   <span
-                    className="text-[10px] font-black w-5 text-center shrink-0"
+                    className="text-[10px] font-black w-4 text-center shrink-0"
                     style={{
                       color: i === 0 ? "rgba(250,204,21,0.7)" : i === 1 ? "rgba(156,163,175,0.6)" : "rgba(180,120,60,0.6)",
                     }}
                   >
                     {i + 1}
                   </span>
+                  <TickerLogo ticker={g.ticker} size={30} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
                       {g.ticker}
@@ -296,13 +384,14 @@ export default function LandingPage() {
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 hover:bg-red-500/[0.06] group"
                 >
                   <span
-                    className="text-[10px] font-black w-5 text-center shrink-0"
+                    className="text-[10px] font-black w-4 text-center shrink-0"
                     style={{
                       color: i === 0 ? "rgba(250,204,21,0.7)" : i === 1 ? "rgba(156,163,175,0.6)" : "rgba(180,120,60,0.6)",
                     }}
                   >
                     {i + 1}
                   </span>
+                  <TickerLogo ticker={l.ticker} size={30} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors leading-none">
                       {l.ticker}
@@ -331,6 +420,60 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Upcoming Dividends ── */}
+        {dividends && dividends.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-blue-500/20" />
+              <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400/80 px-2">
+                Upcoming Dividends
+              </span>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-blue-500/20" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dividends.map((d, i) => (
+                <div
+                  key={i}
+                  className="bg-white/[0.03] border border-white/8 rounded-2xl p-5 backdrop-blur-sm"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <p className="text-white font-bold text-base">{d.ticker}</p>
+                      {d.company_name && (
+                        <p className="text-white/30 text-xs mt-0.5">{d.company_name}</p>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/20 uppercase tracking-wide">
+                      {d.dividend_type}
+                    </span>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="text-white/25 text-[10px] uppercase tracking-widest mb-0.5">Amount</p>
+                    <p className="text-white font-bold text-lg">MK {Number(d.amount_per_share).toLocaleString(undefined, { minimumFractionDigits: 2 })}/share</p>
+                  </div>
+
+                  <div className="space-y-2 border-t border-white/6 pt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Payment Date</span>
+                      <span className="text-white/70 text-xs font-medium">{d.payment_date}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Ex-Dividend Date</span>
+                      <span className="text-orange-300/80 text-xs font-medium">{d.ex_dividend_date}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/30 text-xs">Last Day to Register</span>
+                      <span className="text-orange-300/80 text-xs font-medium">{d.last_day_to_register}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <Footer />

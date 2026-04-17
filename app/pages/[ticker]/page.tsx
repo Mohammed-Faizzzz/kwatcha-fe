@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronsLeftRight } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { companyData } from "@/lib/companyData";
+import TickerLogo from "@/components/TickerLogo";
 import { apiFetch } from "@/lib/apiFetch";
 import { API_BASE } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
@@ -197,16 +198,19 @@ export default function CompanyPage() {
           </button>
 
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              {info?.sector && (
-                <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
-                  {info.sector}
-                </p>
-              )}
-              <h1 className="text-4xl font-bold text-white">
-                {info?.fullName ?? ticker}
-              </h1>
-              <p className="text-white/30 text-sm mt-1">{ticker} · MSE</p>
+            <div className="flex items-center gap-4">
+              <TickerLogo ticker={ticker} size={56} />
+              <div>
+                {info?.sector && (
+                  <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
+                    {info.sector}
+                  </p>
+                )}
+                <h1 className="text-4xl font-bold text-white">
+                  {info?.fullName ?? ticker}
+                </h1>
+                <p className="text-white/30 text-sm mt-1">{ticker} · MSE</p>
+              </div>
             </div>
 
             <div className="text-right">
