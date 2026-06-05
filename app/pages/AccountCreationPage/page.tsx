@@ -243,9 +243,20 @@ export default function AccountCreationPage() {
     if (field === "dob" || field === "jointDob") {
       if (value && value > new Date().toISOString().slice(0, 10)) {
         setErrors((prev) => ({ ...prev, [field]: "Date of birth cannot be in the future" }));
+      } else if (value) {
+        const today = new Date();
+        const birth = new Date(value);
+        const age = today.getFullYear() - birth.getFullYear() - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+        if (age < 18) {
+          setErrors((prev) => ({ ...prev, [field]: "Applicant must be at least 18 years old" }));
+        } else {
+          setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+        }
       } else {
         setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
       }
+    } else if (field === "physicalAddress" || field === "postalAddress") {
+      setErrors((prev) => { const e = { ...prev }; delete e.physicalAddress; delete e.postalAddress; return e; });
     } else if (errors[field]) {
       setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
     }
@@ -265,6 +276,7 @@ export default function AccountCreationPage() {
         if (!form.idNumber.trim()) newErrors.idNumber = "ID number is required";
         if (!form.dob) newErrors.dob = "Date of birth is required";
         else if (form.dob > new Date().toISOString().slice(0, 10)) newErrors.dob = "Date of birth cannot be in the future";
+        else { const _t = new Date(), _b = new Date(form.dob), _age = _t.getFullYear() - _b.getFullYear() - (_t < new Date(_t.getFullYear(), _b.getMonth(), _b.getDate()) ? 1 : 0); if (_age < 18) newErrors.dob = "Applicant must be at least 18 years old"; }
         if (!form.investorType) newErrors.investorType = "Please select investor type";
       }
       if (applicantType === "joint") {
@@ -274,6 +286,7 @@ export default function AccountCreationPage() {
         if (!form.jointIdNumber.trim()) newErrors.jointIdNumber = "Joint ID number is required";
         if (!form.jointDob) newErrors.jointDob = "Date of birth is required";
         else if (form.jointDob > new Date().toISOString().slice(0, 10)) newErrors.jointDob = "Date of birth cannot be in the future";
+        else { const _t = new Date(), _b = new Date(form.jointDob), _age = _t.getFullYear() - _b.getFullYear() - (_t < new Date(_t.getFullYear(), _b.getMonth(), _b.getDate()) ? 1 : 0); if (_age < 18) newErrors.jointDob = "Applicant must be at least 18 years old"; }
         if (!form.jointInvestorType) newErrors.jointInvestorType = "Please select investor type";
       }
       if (applicantType === "company") {
@@ -282,15 +295,13 @@ export default function AccountCreationPage() {
         if (!form.regDate) newErrors.regDate = "Date of registration is required";
         if (!form.authorisedSignatory1.trim()) newErrors.authorisedSignatory1 = "At least one signatory is required";
       }
-      if (!form.physicalAddress.trim()) newErrors.physicalAddress = "Physical address is required";
+      if (!form.physicalAddress.trim() && !form.postalAddress.trim()) {
+        newErrors.physicalAddress = "At least one address is required";
+        newErrors.postalAddress = "At least one address is required";
+      }
       if (!form.telephone.trim()) newErrors.telephone = "Telephone is required";
       if (!form.email.trim()) newErrors.email = "Email address is required";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "Please enter a valid email";
-    }
-
-    if (step === 3) {
-      if (!form.primarySignatureDate) newErrors.primarySignatureDate = "Please select a date";
-      if (applicantType === "joint" && !form.jointSignatureDate) newErrors.jointSignatureDate = "Please select a date";
     }
 
     if (step === 4) {
@@ -316,7 +327,12 @@ export default function AccountCreationPage() {
 
   const handleContinue = () => {
     if (validateStep(currentStep as Step)) {
-      setCurrentStep((prev) => (Math.min(6, prev + 1)) as Step);
+      const next = Math.min(6, currentStep + 1) as Step;
+      if (next === 3) {
+        const today = new Date().toISOString().slice(0, 10);
+        setForm((prev) => ({ ...prev, primarySignatureDate: today, jointSignatureDate: today }));
+      }
+      setCurrentStep(next);
     }
   };
 
@@ -623,9 +639,10 @@ export default function AccountCreationPage() {
               )}
 
               <SectionHeader title="Contact Information" />
+              <p className="text-xs text-white/40 -mt-3 mb-4">At least one of Physical or Postal Address is required.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2"><InputField label="Physical Address" field="physicalAddress" required placeholder="Street, City" /></div>
-                <div className="md:col-span-2"><InputField label="Postal Address" field="postalAddress" placeholder="P.O. Box or street (optional)" /></div>
+                <div className="md:col-span-2"><InputField label="Physical Address" field="physicalAddress" placeholder="Street, City" /></div>
+                <div className="md:col-span-2"><InputField label="Postal Address" field="postalAddress" placeholder="P.O. Box or street" /></div>
                 <InputField label="Telephone" field="telephone" type="tel" required placeholder="+265 ..." />
                 <InputField label="Cellphone" field="cellphone" type="tel" placeholder="+265 ..." />
                 <InputField label="Fax" field="fax" type="tel" placeholder="Optional" />
@@ -648,8 +665,20 @@ export default function AccountCreationPage() {
               </div>
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Primary Applicant — Date" field="primarySignatureDate" type="date" required />
-                {applicantType === "joint" && <InputField label="Joint Applicant — Date" field="jointSignatureDate" type="date" required />}
+                {[
+                  { label: "Primary Applicant — Date" },
+                  ...(applicantType === "joint" ? [{ label: "Joint Applicant — Date" }] : []),
+                ].map(({ label }) => (
+                  <div key={label} className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold tracking-widest text-blue-300/80 uppercase">{label}</label>
+                    <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white/60 text-sm select-none">
+                      {form.primarySignatureDate
+                        ? new Date(form.primarySignatureDate + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+                        : "—"}
+                    </div>
+                    <p className="text-white/20 text-xs mt-0.5">Automatically set to today&apos;s date</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
