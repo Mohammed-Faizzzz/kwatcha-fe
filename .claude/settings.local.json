@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://mse.co.mw\")",
+      "Bash(curl -s \"https://mse.co.mw/company/MWFMB0010138\")",
+      "Bash(curl -s \"https://mse.co.mw/company/ZAE000255360\")",
+      "Bash(curl -s \"https://mse.co.mw/company/MWSTL0010085\")",
+      "Bash(curl -sL \"https://fmbmalawi.com/apple-touch-icon.png\" -o \"/Users/mohammedfaiz/Desktop/Coding Stuff/kwatcha-fe/public/logos/FMB_test.png\" --max-time 15 -w \"%{http_code}\")",
+      "WebFetch(domain:fmbmalawi.com)",
+      "WebFetch(domain:www.fmbmalawi.com)"
+    ]
+  }
+}
