@@ -17,22 +17,11 @@ interface Message {
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("mse_user");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setIsLoggedIn(!!parsed.loggedIn);
-      }
-    } catch {}
-  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -143,29 +132,7 @@ export default function ChatBot() {
             </button>
           </div>
 
-          {/* Logged-out gate */}
-          {!isLoggedIn && (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 py-8">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style={{
-                  background: "rgba(37,99,235,0.1)",
-                  border: "0.5px solid rgba(37,99,235,0.18)",
-                }}
-              >
-                <MessageSquare size={22} className="text-blue-400/60" />
-              </div>
-              <div className="text-center">
-                <p className="text-white/60 text-sm font-medium">Sign in to chat</p>
-                <p className="text-white/25 text-xs mt-1 leading-relaxed">
-                  Market Assistant is available to verified account holders
-                </p>
-              </div>
-            </div>
-          )}
-
           {/* Message list */}
-          {isLoggedIn && (
           <div
             className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 min-h-0"
             style={{ scrollbarWidth: "none" }}
@@ -288,10 +255,9 @@ export default function ChatBot() {
 
             <div ref={messagesEndRef} />
           </div>
-          )}
 
           {/* Input */}
-          {isLoggedIn && <div
+          <div
             className="px-3 pb-3 pt-2 flex-shrink-0"
             style={{ borderTop: "0.5px solid rgba(255,255,255,0.06)" }}
           >
@@ -332,7 +298,7 @@ export default function ChatBot() {
             <p className="text-center text-white/15 text-[10px] mt-1.5">
               Enter to send · Shift+Enter for newline
             </p>
-          </div>}
+          </div>
         </div>
       )}
 
