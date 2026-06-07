@@ -53,7 +53,10 @@ export default function ChatBot() {
         }),
       });
 
-      if (!res.ok) throw new Error("Bad response");
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status}${errBody ? `: ${errBody}` : ""}`);
+      }
 
       const data = await res.json();
       setMessages([
@@ -64,10 +67,12 @@ export default function ChatBot() {
           sources: Array.isArray(data.sources) ? data.sources : [],
         },
       ]);
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      console.error("[ChatBot] fetch error:", detail);
       setMessages([
         ...updated,
-        { role: "assistant", content: "Sorry, I couldn't connect right now. Please try again." },
+        { role: "assistant", content: `Error: ${detail}` },
       ]);
     } finally {
       setLoading(false);
