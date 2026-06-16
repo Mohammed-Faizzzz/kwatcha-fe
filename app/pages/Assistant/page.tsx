@@ -101,10 +101,7 @@ export default function AssistantPage() {
           <p className="text-xs font-bold tracking-[0.25em] text-blue-400/70 uppercase mb-1">
             Msika Wa Kampani
           </p>
-          <h1
-            className="text-3xl font-bold text-white"
-            style={{ fontFamily: "var(--font-playfair)" }}
-          >
+          <h1 className="text-3xl font-bold text-white">
             Market Assistant
           </h1>
           <p className="text-white/35 text-sm mt-1">
