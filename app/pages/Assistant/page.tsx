@@ -5,6 +5,7 @@ import { Send, ExternalLink, MessageSquare } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { API_BASE } from "@/lib/constants";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface Source {
   title: string;
@@ -25,11 +26,24 @@ const SUGGESTIONS = [
 ];
 
 export default function AssistantPage() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const suggBg      = isDark ? "rgba(255,255,255,0.03)"  : "rgba(15,23,42,0.04)";
+  const suggBgHov   = isDark ? "rgba(255,255,255,0.055)" : "rgba(15,23,42,0.08)";
+  const suggBorder  = isDark ? "0.5px solid rgba(255,255,255,0.08)" : "0.5px solid rgba(15,23,42,0.09)";
+  const asstBg      = isDark ? "rgba(255,255,255,0.04)"  : "rgba(15,23,42,0.045)";
+  const asstBorder  = isDark ? "0.5px solid rgba(255,255,255,0.08)" : "0.5px solid rgba(15,23,42,0.1)";
+  const asstColor   = isDark ? "rgba(255,255,255,0.82)"  : "rgba(15,23,42,0.85)";
+  const srcDivider  = isDark ? "0.5px solid rgba(255,255,255,0.1)"  : "0.5px solid rgba(15,23,42,0.1)";
+  const inputBarBg  = isDark ? "rgba(255,255,255,0.04)"  : "rgba(15,23,42,0.045)";
+  const inputBarBdr = isDark ? "0.5px solid rgba(255,255,255,0.1)"  : "0.5px solid rgba(15,23,42,0.1)";
+  const sendInact   = isDark ? "rgba(255,255,255,0.06)"  : "rgba(15,23,42,0.07)";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -89,7 +103,7 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#060a10" }}>
+    <div className="min-h-screen flex flex-col bg-black">
       <Navbar />
 
       <main
@@ -134,12 +148,9 @@ export default function AssistantPage() {
                     key={s}
                     onClick={() => sendMessage(s)}
                     className="text-left px-4 py-3 rounded-xl text-white/45 text-sm transition-all hover:text-white/75"
-                    style={{
-                      background: "rgba(255,255,255,0.03)",
-                      border: "0.5px solid rgba(255,255,255,0.08)",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.055)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+                    style={{ background: suggBg, border: suggBorder }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = suggBgHov)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = suggBg)}
                   >
                     {s}
                   </button>
@@ -160,9 +171,9 @@ export default function AssistantPage() {
                           borderBottomRightRadius: "5px",
                         }
                       : {
-                          background: "rgba(255,255,255,0.04)",
-                          border: "0.5px solid rgba(255,255,255,0.08)",
-                          color: "rgba(255,255,255,0.82)",
+                          background: asstBg,
+                          border: asstBorder,
+                          color: asstColor,
                           borderRadius: "18px",
                           borderBottomLeftRadius: "5px",
                         }
@@ -172,7 +183,7 @@ export default function AssistantPage() {
                   {msg.sources && msg.sources.length > 0 && (
                     <div
                       className="mt-3 pt-3 flex flex-col gap-1.5"
-                      style={{ borderTop: "0.5px solid rgba(255,255,255,0.1)" }}
+                      style={{ borderTop: srcDivider }}
                     >
                       <p className="text-[10px] font-semibold tracking-widest text-white/30 uppercase">
                         Sources
@@ -208,8 +219,8 @@ export default function AssistantPage() {
               <div
                 className="px-4 py-3.5 flex gap-1.5 items-center"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "0.5px solid rgba(255,255,255,0.08)",
+                  background: asstBg,
+                  border: asstBorder,
                   borderRadius: "18px",
                   borderBottomLeftRadius: "5px",
                 }}
@@ -231,10 +242,7 @@ export default function AssistantPage() {
         {/* Input bar */}
         <div
           className="flex-shrink-0 mt-4 rounded-2xl px-4 py-3 flex items-end gap-3"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "0.5px solid rgba(255,255,255,0.1)",
-          }}
+          style={{ background: inputBarBg, border: inputBarBdr }}
         >
           <textarea
             ref={inputRef}
@@ -252,7 +260,7 @@ export default function AssistantPage() {
             disabled={loading || !input.trim()}
             className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed mb-0.5"
             style={{
-              background: input.trim() && !loading ? "rgb(37,99,235)" : "rgba(255,255,255,0.06)",
+              background: input.trim() && !loading ? "rgb(37,99,235)" : sendInact,
             }}
             aria-label="Send"
           >

@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/constants";
 import { getMarketStatus } from "@/lib/marketUtils";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface NavbarProps {
   tickerItems?: { symbol: string; price: string; change: number }[];
@@ -14,6 +15,8 @@ interface NavbarProps {
 
 export default function Navbar({ tickerItems = [] }: NavbarProps) {
   const router = useRouter();
+  const { resolvedTheme, toggleTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +27,26 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const marketStatus = getMarketStatus();
+
+  // Theme-aware style values
+  const navBg = isDark ? "rgba(6,10,16,0.92)" : "rgba(255,255,255,0.92)";
+  const navBorder = isDark ? "0.5px solid rgba(255,255,255,0.08)" : "0.5px solid rgba(15,23,42,0.1)";
+  const logoText = isDark ? "#fff" : "#0f172a";
+  const logoMuted = isDark ? "rgba(255,255,255,0.3)" : "rgba(15,23,42,0.35)";
+  const navLinkColor = isDark ? "rgba(255,255,255,0.45)" : "rgba(15,23,42,0.5)";
+  const navLinkHover = isDark ? "rgba(255,255,255,0.95)" : "rgba(15,23,42,0.95)";
+  const mobileBg = isDark ? "rgba(6,10,16,0.98)" : "rgba(248,250,252,0.98)";
+  const mobileLinkColor = isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.6)";
+  const mobileLinkHoverBg = isDark ? "rgba(255,255,255,0.05)" : "rgba(15,23,42,0.05)";
+  const tickerBg = isDark ? "rgba(6,10,16,0.97)" : "rgba(255,255,255,0.97)";
+  const tickerText = isDark ? "rgba(255,255,255,0.35)" : "rgba(15,23,42,0.4)";
+  const tickerSymbol = isDark ? "rgba(255,255,255,0.7)" : "rgba(15,23,42,0.8)";
+  const loginBtnBg = isDark ? "rgba(255,255,255,0.05)" : "rgba(15,23,42,0.05)";
+  const loginBtnBorder = isDark ? "0.5px solid rgba(255,255,255,0.1)" : "0.5px solid rgba(15,23,42,0.12)";
+  const loginBtnColor = isDark ? "rgba(255,255,255,0.7)" : "rgba(15,23,42,0.7)";
+  const loginBtnHoverBg = isDark ? "rgba(255,255,255,0.09)" : "rgba(15,23,42,0.09)";
+  const loginBtnHoverColor = isDark ? "#fff" : "#0f172a";
+  const usernameLabelColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(15,23,42,0.45)";
 
   useEffect(() => {
     const stored = localStorage.getItem("mse_user");
@@ -84,10 +107,10 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
         <nav
           className="flex items-center justify-between px-4 md:px-12 py-4 md:py-5"
           style={{
-            background: "rgba(6,10,16,0.92)",
+            background: navBg,
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            borderBottom: "0.5px solid rgba(255,255,255,0.08)",
+            borderBottom: navBorder,
           }}
         >
           {/* Logo */}
@@ -102,9 +125,9 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
               height={38}
               style={{ borderRadius: "50%" }}
             />
-            <span style={{ fontSize: "17px", fontWeight: 500, color: "#fff", letterSpacing: "0.01em" }}>
+            <span style={{ fontSize: "17px", fontWeight: 500, color: logoText, letterSpacing: "0.01em" }}>
               Msika{" "}
-              <span style={{ color: "rgba(255,255,255,0.3)" }}>wa Kampani</span>
+              <span style={{ color: logoMuted }}>wa Kampani</span>
             </span>
           </div>
 
@@ -120,7 +143,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                   style={{
                     position: "relative",
                     fontSize: "15px",
-                    color: hoveredNav === section ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.45)",
+                    color: hoveredNav === section ? navLinkHover : navLinkColor,
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
@@ -184,11 +207,41 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
               </span>
             </div>
 
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "34px",
+                height: "34px",
+                borderRadius: "8px",
+                border: navBorder,
+                background: loginBtnBg,
+                color: navLinkColor,
+                cursor: "pointer",
+                transition: "all 0.15s",
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = loginBtnHoverBg;
+                e.currentTarget.style.color = loginBtnHoverColor;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = loginBtnBg;
+                e.currentTarget.style.color = navLinkColor;
+              }}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
             {/* Auth buttons — desktop only */}
             <div className="hidden md:flex items-center" style={{ gap: "10px" }}>
               {loggedInUser ? (
                 <>
-                  <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.4)" }}>
+                  <span style={{ fontSize: "15px", color: usernameLabelColor }}>
                     @{loggedInUser}
                   </span>
                   <button
@@ -213,21 +266,21 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     onClick={() => { setShowLogin(true); setError(null); }}
                     style={{
                       fontSize: "15px",
-                      color: "rgba(255,255,255,0.7)",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "0.5px solid rgba(255,255,255,0.1)",
+                      color: loginBtnColor,
+                      background: loginBtnBg,
+                      border: loginBtnBorder,
                       padding: "9px 20px",
                       borderRadius: "8px",
                       cursor: "pointer",
                       transition: "all 0.15s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.09)";
-                      e.currentTarget.style.color = "#fff";
+                      e.currentTarget.style.background = loginBtnHoverBg;
+                      e.currentTarget.style.color = loginBtnHoverColor;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                      e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+                      e.currentTarget.style.background = loginBtnBg;
+                      e.currentTarget.style.color = loginBtnColor;
                     }}
                   >
                     Log in
@@ -256,7 +309,8 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
 
             {/* Hamburger — mobile only */}
             <button
-              className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
+              className="md:hidden p-2 transition-colors"
+              style={{ color: navLinkColor }}
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
             >
@@ -270,23 +324,32 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
           <div
             className="md:hidden flex flex-col px-4 py-4 gap-1"
             style={{
-              background: "rgba(6,10,16,0.98)",
-              borderBottom: "0.5px solid rgba(255,255,255,0.08)",
+              background: mobileBg,
+              borderBottom: navBorder,
             }}
           >
             {["Market", "Companies", "Insights", "Assistant", ...(loggedInUser ? ["Portfolio"] : []), "About"].map((section) => (
               <button
                 key={section}
                 onClick={() => { router.push(`/pages/${section}`); setMenuOpen(false); }}
-                className="text-left px-3 py-3 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors text-[15px]"
+                className="text-left px-3 py-3 rounded-lg transition-colors text-[15px]"
+                style={{ color: mobileLinkColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = mobileLinkHoverBg;
+                  e.currentTarget.style.color = logoText;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = mobileLinkColor;
+                }}
               >
                 {section}
               </button>
             ))}
-            <div className="flex flex-col gap-2 mt-3 pt-3" style={{ borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex flex-col gap-2 mt-3 pt-3" style={{ borderTop: navBorder }}>
               {loggedInUser ? (
                 <>
-                  <span className="text-white/40 text-sm px-3">@{loggedInUser}</span>
+                  <span className="text-sm px-3" style={{ color: usernameLabelColor }}>@{loggedInUser}</span>
                   <button
                     onClick={() => { handleLogout(); setMenuOpen(false); }}
                     className="w-full text-white font-medium py-2.5 rounded-lg text-[15px]"
@@ -299,8 +362,8 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                 <>
                   <button
                     onClick={() => { setShowLogin(true); setError(null); setMenuOpen(false); }}
-                    className="w-full text-white/70 py-2.5 rounded-lg text-[15px]"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.1)" }}
+                    className="w-full py-2.5 rounded-lg text-[15px]"
+                    style={{ color: loginBtnColor, background: loginBtnBg, border: loginBtnBorder }}
                   >
                     Log in
                   </button>
@@ -321,7 +384,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
         {tickerItems.length > 0 && (
           <div style={{
             overflow: "hidden",
-            background: "rgba(6,10,16,0.97)",
+            background: tickerBg,
             borderBottom: "0.5px solid rgba(59,130,246,0.12)",
             paddingTop: "10px",
             paddingBottom: "10px",
@@ -344,10 +407,10 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                     gap: "5px",
                     padding: "0 28px",
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.35)",
+                    color: tickerText,
                   }}
                 >
-                  <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                  <span style={{ color: tickerSymbol, fontWeight: 600 }}>
                     {item.symbol}
                   </span>
                   MWK {item.price}
@@ -358,7 +421,7 @@ export default function Navbar({ tickerItems = [] }: NavbarProps) {
                           ? "#4ade80"
                           : item.change < 0
                           ? "#f87171"
-                          : "rgba(255,255,255,0.25)",
+                          : tickerText,
                     }}
                   >
                     {item.change > 0 ? "+" : ""}

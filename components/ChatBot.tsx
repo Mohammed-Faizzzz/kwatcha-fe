@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, ExternalLink, ChevronDown } from "lucide-react";
 import { API_BASE } from "@/lib/constants";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface Source {
   title: string;
@@ -16,12 +17,35 @@ interface Message {
 }
 
 export default function ChatBot() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Theme-aware colour tokens
+  const winBg        = isDark ? "#060a10"                      : "#ffffff";
+  const winBorder    = isDark ? "rgba(255,255,255,0.1)"        : "rgba(15,23,42,0.1)";
+  const winShadow    = isDark
+    ? "0 24px 64px rgba(0,0,0,0.75), 0 0 0 0.5px rgba(59,130,246,0.06)"
+    : "0 8px 40px rgba(15,23,42,0.12), 0 0 0 0.5px rgba(59,130,246,0.08)";
+  const divider      = isDark ? "0.5px solid rgba(255,255,255,0.08)" : "0.5px solid rgba(15,23,42,0.08)";
+  const suggBg       = isDark ? "rgba(255,255,255,0.025)"      : "rgba(15,23,42,0.04)";
+  const suggBorder   = isDark ? "0.5px solid rgba(255,255,255,0.07)" : "0.5px solid rgba(15,23,42,0.08)";
+  const suggBgHover  = isDark ? "rgba(255,255,255,0.055)"      : "rgba(15,23,42,0.08)";
+  const asstBg       = isDark ? "rgba(255,255,255,0.04)"       : "rgba(15,23,42,0.045)";
+  const asstBorder   = isDark ? "0.5px solid rgba(255,255,255,0.08)" : "0.5px solid rgba(15,23,42,0.1)";
+  const asstColor    = isDark ? "rgba(255,255,255,0.82)"       : "rgba(15,23,42,0.85)";
+  const srcDivider   = isDark ? "0.5px solid rgba(255,255,255,0.1)"  : "0.5px solid rgba(15,23,42,0.1)";
+  const inputTopBdr  = isDark ? "0.5px solid rgba(255,255,255,0.06)" : "0.5px solid rgba(15,23,42,0.07)";
+  const inputAreaBg  = isDark ? "rgba(255,255,255,0.04)"       : "rgba(15,23,42,0.045)";
+  const inputAreaBdr = isDark ? "0.5px solid rgba(255,255,255,0.09)" : "0.5px solid rgba(15,23,42,0.1)";
+  const sendInactive = isDark ? "rgba(255,255,255,0.06)"       : "rgba(15,23,42,0.07)";
+  const bubbleOpenBg = isDark ? "rgba(255,255,255,0.07)"       : "rgba(15,23,42,0.06)";
+  const bubbleOpenBr = isDark ? "0.5px solid rgba(255,255,255,0.14)" : "0.5px solid rgba(15,23,42,0.12)";
 
   useEffect(() => {
     if (isOpen) {
@@ -101,17 +125,17 @@ export default function ChatBot() {
           style={{
             width: "min(calc(100vw - 32px), 380px)",
             height: "min(calc(100vh - 120px), 560px)",
-            background: "#060a10",
-            border: "0.5px solid rgba(255,255,255,0.1)",
+            background: winBg,
+            border: `0.5px solid ${winBorder}`,
             borderRadius: "20px",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.75), 0 0 0 0.5px rgba(59,130,246,0.06)",
+            boxShadow: winShadow,
             backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(29,78,216,0.09) 0%, transparent 60%)",
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
-            style={{ borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}
+            style={{ borderBottom: divider }}
           >
             <div className="flex items-center gap-2.5">
               <div
@@ -167,11 +191,10 @@ export default function ChatBot() {
                         setInput(s);
                         inputRef.current?.focus();
                       }}
-                      className="text-left px-3 py-2 rounded-xl text-white/40 text-xs transition-all hover:text-white/70 hover:bg-white/[0.04]"
-                      style={{
-                        background: "rgba(255,255,255,0.025)",
-                        border: "0.5px solid rgba(255,255,255,0.07)",
-                      }}
+                      className="text-left px-3 py-2 rounded-xl text-white/40 text-xs transition-all hover:text-white/70"
+                      style={{ background: suggBg, border: suggBorder }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = suggBgHover; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = suggBg; }}
                     >
                       {s}
                     </button>
@@ -192,9 +215,9 @@ export default function ChatBot() {
                             borderBottomRightRadius: "5px",
                           }
                         : {
-                            background: "rgba(255,255,255,0.04)",
-                            border: "0.5px solid rgba(255,255,255,0.08)",
-                            color: "rgba(255,255,255,0.82)",
+                            background: asstBg,
+                            border: asstBorder,
+                            color: asstColor,
                             borderRadius: "16px",
                             borderBottomLeftRadius: "5px",
                           }
@@ -204,7 +227,7 @@ export default function ChatBot() {
                     {msg.sources && msg.sources.length > 0 && (
                       <div
                         className="mt-2.5 pt-2 flex flex-col gap-1.5"
-                        style={{ borderTop: "0.5px solid rgba(255,255,255,0.1)" }}
+                        style={{ borderTop: srcDivider }}
                       >
                         <p className="text-[10px] font-semibold tracking-widest text-white/30 uppercase">
                           Sources
@@ -241,8 +264,8 @@ export default function ChatBot() {
                 <div
                   className="px-3.5 py-3 flex gap-1.5 items-center"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "0.5px solid rgba(255,255,255,0.08)",
+                    background: asstBg,
+                    border: asstBorder,
                     borderRadius: "16px",
                     borderBottomLeftRadius: "5px",
                   }}
@@ -264,14 +287,11 @@ export default function ChatBot() {
           {/* Input */}
           <div
             className="px-3 pb-3 pt-2 flex-shrink-0"
-            style={{ borderTop: "0.5px solid rgba(255,255,255,0.06)" }}
+            style={{ borderTop: inputTopBdr }}
           >
             <div
               className="flex items-end gap-2 rounded-xl px-3 py-2"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "0.5px solid rgba(255,255,255,0.09)",
-              }}
+              style={{ background: inputAreaBg, border: inputAreaBdr }}
             >
               <textarea
                 ref={inputRef}
@@ -289,8 +309,7 @@ export default function ChatBot() {
                 disabled={loading || !input.trim()}
                 className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all disabled:cursor-not-allowed"
                 style={{
-                  background:
-                    input.trim() && !loading ? "rgb(37,99,235)" : "rgba(255,255,255,0.06)",
+                  background: input.trim() && !loading ? "rgb(37,99,235)" : sendInactive,
                 }}
                 aria-label="Send message"
               >
@@ -312,8 +331,8 @@ export default function ChatBot() {
         onClick={() => setIsOpen((o) => !o)}
         className="fixed bottom-4 right-4 z-[90] w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95"
         style={{
-          background: isOpen ? "rgba(255,255,255,0.07)" : "rgb(37,99,235)",
-          border: isOpen ? "0.5px solid rgba(255,255,255,0.14)" : "none",
+          background: isOpen ? bubbleOpenBg : "rgb(37,99,235)",
+          border: isOpen ? bubbleOpenBr : "none",
           boxShadow: isOpen ? "none" : "0 4px 20px rgba(37,99,235,0.5)",
         }}
         aria-label={isOpen ? "Close chat" : "Open Market Assistant"}

@@ -12,6 +12,7 @@ import TickerLogo from "@/components/TickerLogo";
 import { apiFetch } from "@/lib/apiFetch";
 import { API_BASE } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface StockData {
   ticker: string;
@@ -31,6 +32,8 @@ export default function CompanyPage() {
   const params = useParams();
   const router = useRouter();
   const ticker = (params?.ticker as string)?.toUpperCase();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -268,11 +271,11 @@ export default function CompanyPage() {
           {priceHistory.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={priceHistory}>
-                <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 11 }} axisLine={false} tickLine={false} width={60} />
+                <XAxis dataKey="date" tick={{ fill: isDark ? "rgba(255,255,255,0.2)" : "rgba(15,23,42,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: isDark ? "rgba(255,255,255,0.2)" : "rgba(15,23,42,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} width={60} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#111", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
-                  labelStyle={{ color: "rgba(255,255,255,0.5)" }}
+                  contentStyle={{ backgroundColor: isDark ? "#111" : "#fff", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(15,23,42,0.1)", borderRadius: 8, color: isDark ? "#fff" : "#0f172a" }}
+                  labelStyle={{ color: isDark ? "rgba(255,255,255,0.5)" : "rgba(15,23,42,0.5)" }}
                 />
                 <Line
                   type="monotone"
